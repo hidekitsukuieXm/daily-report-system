@@ -28,6 +28,6 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src", "prisma"],
+  "include": ["src", "server", "prisma", "vitest.config.ts", "vitest.server.config.ts"],
   "exclude": ["node_modules", "dist"]
 }

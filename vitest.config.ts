@@ -16,7 +16,7 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
 
     // テストファイルのパターン
-    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    include: ['src/**/*.{test,spec}.{ts,tsx}', 'server/**/*.{test,spec}.{ts,tsx}'],
 
     // 除外パターン
     exclude: ['node_modules', 'dist', '.idea', '.git', '.cache'],
