@@ -124,14 +124,59 @@ const mockReportDetail = {
     },
   ],
   approvalHistories: [],
-  comments: [],
+  comments: [
+    {
+      id: 1,
+      dailyReportId: 1,
+      commenterId: 2,
+      content: 'ABC社の件、良い感触ですね。見積は明日中に確認します。',
+      createdAt: '2024-01-15T19:05:00Z',
+      updatedAt: '2024-01-15T19:05:00Z',
+      commenter: {
+        id: 2,
+        name: '鈴木課長',
+        position: { id: 2, name: '課長' },
+      },
+    },
+  ],
   createdAt: '2024-01-15T17:00:00Z',
   updatedAt: '2024-01-15T18:00:00Z',
 };
 
+// コメントモックデータ
+const mockComments = [
+  {
+    id: 1,
+    dailyReportId: 1,
+    commenterId: 2,
+    content: 'ABC社の件、良い感触ですね。見積は明日中に確認します。',
+    createdAt: '2024-01-15T19:05:00Z',
+    updatedAt: '2024-01-15T19:05:00Z',
+    commenter: {
+      id: 2,
+      name: '鈴木課長',
+      position: { id: 2, name: '課長' },
+    },
+  },
+  {
+    id: 2,
+    dailyReportId: 1,
+    commenterId: 3,
+    content: '競合対策について、来週のミーティングで議論しましょう。',
+    createdAt: '2024-01-15T20:00:00Z',
+    updatedAt: '2024-01-15T20:00:00Z',
+    commenter: {
+      id: 3,
+      name: '田中部長',
+      position: { id: 3, name: '部長' },
+    },
+  },
+];
+
 let nextReportId = 4;
 let nextVisitId = 3;
 let nextAttachmentId = 2;
+let nextCommentId = 3;
 
 export const handlers = [
   // 認証API
@@ -508,5 +553,92 @@ export const handlers = [
         ],
       },
     });
+  }),
+
+  // コメントAPI
+  http.get(`${BASE_URL}/reports/:reportId/comments`, ({ params }) => {
+    const { reportId } = params;
+    const comments = mockComments.filter(
+      (c) => c.dailyReportId === Number(reportId)
+    );
+    return HttpResponse.json({
+      success: true,
+      data: {
+        items: comments,
+      },
+    });
+  }),
+
+  http.post(`${BASE_URL}/reports/:reportId/comments`, async ({ request, params }) => {
+    const { reportId } = params;
+    const body = (await request.json()) as { content: string };
+
+    // バリデーション: コンテンツが空の場合
+    if (!body.content || body.content.trim() === '') {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'コメントを入力してください',
+          },
+        },
+        { status: 422 }
+      );
+    }
+
+    // バリデーション: コンテンツが2000文字を超える場合
+    if (body.content.length > 2000) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'コメントは2000文字以内で入力してください',
+          },
+        },
+        { status: 422 }
+      );
+    }
+
+    const newId = nextCommentId++;
+    const newComment = {
+      id: newId,
+      dailyReportId: Number(reportId),
+      commenterId: 2,
+      content: body.content,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      commenter: {
+        id: 2,
+        name: '鈴木課長',
+        position: { id: 2, name: '課長' },
+      },
+    };
+
+    return HttpResponse.json(
+      {
+        success: true,
+        data: newComment,
+      },
+      { status: 201 }
+    );
+  }),
+
+  http.delete(`${BASE_URL}/comments/:id`, ({ params }) => {
+    const { id } = params;
+    const comment = mockComments.find((c) => c.id === Number(id));
+
+    if (!comment) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: 'NOT_FOUND', message: 'コメントが見つかりません' },
+        },
+        { status: 404 }
+      );
+    }
+
+    return new HttpResponse(null, { status: 204 });
   }),
 ];
