@@ -14,6 +14,106 @@ const mockUser = {
   position: { id: 1, name: '担当', level: 1 },
 };
 
+const mockPositions = [
+  {
+    id: 1,
+    name: '担当',
+    level: 1,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: 2,
+    name: '課長',
+    level: 2,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: 3,
+    name: '部長',
+    level: 3,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+  },
+];
+
+type MockSalesperson = {
+  id: number;
+  name: string;
+  email: string;
+  positionId: number;
+  managerId: number | null;
+  directorId: number | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  position: (typeof mockPositions)[number] | undefined;
+  manager: { id: number; name: string } | null;
+  director: { id: number; name: string } | null;
+};
+
+const mockSalespersons: MockSalesperson[] = [
+  {
+    id: 1,
+    name: '田中 部長',
+    email: 'director@example.com',
+    positionId: 3,
+    managerId: null,
+    directorId: null,
+    isActive: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+    position: mockPositions[2],
+    manager: null,
+    director: null,
+  },
+  {
+    id: 2,
+    name: '鈴木 課長',
+    email: 'manager@example.com',
+    positionId: 2,
+    managerId: null,
+    directorId: 1,
+    isActive: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+    position: mockPositions[1],
+    manager: null,
+    director: { id: 1, name: '田中 部長' },
+  },
+  {
+    id: 3,
+    name: '山田 太郎',
+    email: 'yamada@example.com',
+    positionId: 1,
+    managerId: 2,
+    directorId: 1,
+    isActive: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+    position: mockPositions[0],
+    manager: { id: 2, name: '鈴木 課長' },
+    director: { id: 1, name: '田中 部長' },
+  },
+  {
+    id: 4,
+    name: '佐藤 花子',
+    email: 'sato@example.com',
+    positionId: 1,
+    managerId: 2,
+    directorId: 1,
+    isActive: false,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+    position: mockPositions[0],
+    manager: { id: 2, name: '鈴木 課長' },
+    director: { id: 1, name: '田中 部長' },
+  },
+];
+
+let nextSalespersonId = 5;
+
 const mockCustomers = [
   {
     id: 1,
@@ -470,13 +570,7 @@ export const handlers = [
   http.get(`${BASE_URL}/positions`, () => {
     return HttpResponse.json({
       success: true,
-      data: {
-        items: [
-          { id: 1, name: '担当', level: 1 },
-          { id: 2, name: '課長', level: 2 },
-          { id: 3, name: '部長', level: 3 },
-        ],
-      },
+      data: mockPositions,
     });
   }),
 
@@ -508,5 +602,218 @@ export const handlers = [
         ],
       },
     });
+  }),
+
+  // 営業担当者API
+  http.get(`${BASE_URL}/salespersons`, ({ request }) => {
+    const url = new URL(request.url);
+    const name = url.searchParams.get('name');
+    const positionId = url.searchParams.get('position_id');
+    const isActive = url.searchParams.get('is_active');
+
+    let filtered = [...mockSalespersons];
+
+    if (name) {
+      filtered = filtered.filter((s) =>
+        s.name.toLowerCase().includes(name.toLowerCase())
+      );
+    }
+    if (positionId) {
+      filtered = filtered.filter((s) => s.positionId === Number(positionId));
+    }
+    if (isActive !== null && isActive !== '') {
+      filtered = filtered.filter((s) => s.isActive === (isActive === 'true'));
+    }
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        items: filtered,
+        pagination: {
+          currentPage: 1,
+          perPage: 20,
+          totalPages: 1,
+          totalCount: filtered.length,
+        },
+      },
+    });
+  }),
+
+  http.get(`${BASE_URL}/salespersons/managers`, () => {
+    const managers = mockSalespersons
+      .filter((s) => s.position?.level === 2)
+      .map((s) => ({ id: s.id, name: s.name }));
+    return HttpResponse.json({
+      success: true,
+      data: managers,
+    });
+  }),
+
+  http.get(`${BASE_URL}/salespersons/directors`, () => {
+    const directors = mockSalespersons
+      .filter((s) => s.position?.level === 3)
+      .map((s) => ({ id: s.id, name: s.name }));
+    return HttpResponse.json({
+      success: true,
+      data: directors,
+    });
+  }),
+
+  http.get(`${BASE_URL}/salespersons/:id`, ({ params }) => {
+    const { id } = params;
+    const salesperson = mockSalespersons.find((s) => s.id === Number(id));
+    if (salesperson) {
+      return HttpResponse.json({
+        success: true,
+        data: salesperson,
+      });
+    }
+    return HttpResponse.json(
+      {
+        success: false,
+        error: { code: 'NOT_FOUND', message: '営業担当者が見つかりません' },
+      },
+      { status: 404 }
+    );
+  }),
+
+  http.post(`${BASE_URL}/salespersons`, async ({ request }) => {
+    const body = (await request.json()) as {
+      email?: string;
+      name?: string;
+      position_id?: number;
+      manager_id?: number | null;
+      director_id?: number | null;
+    };
+
+    // メール重複チェック
+    const existingEmail = mockSalespersons.find((s) => s.email === body.email);
+    if (existingEmail) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'DUPLICATE_EMAIL',
+            message: 'このメールアドレスは既に登録されています',
+          },
+        },
+        { status: 409 }
+      );
+    }
+
+    const newId = nextSalespersonId++;
+    const position = mockPositions.find((p) => p.id === body.position_id);
+    const manager = body.manager_id
+      ? mockSalespersons.find((s) => s.id === body.manager_id)
+      : null;
+    const director = body.director_id
+      ? mockSalespersons.find((s) => s.id === body.director_id)
+      : null;
+
+    const newSalesperson = {
+      id: newId,
+      name: body.name ?? '',
+      email: body.email ?? '',
+      positionId: body.position_id ?? 1,
+      managerId: body.manager_id ?? null,
+      directorId: body.director_id ?? null,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      position: position ?? mockPositions[0],
+      manager: manager ? { id: manager.id, name: manager.name } : null,
+      director: director ? { id: director.id, name: director.name } : null,
+    };
+
+    mockSalespersons.push(newSalesperson);
+
+    return HttpResponse.json(
+      {
+        success: true,
+        data: newSalesperson,
+      },
+      { status: 201 }
+    );
+  }),
+
+  http.put(`${BASE_URL}/salespersons/:id`, async ({ request, params }) => {
+    const { id } = params;
+    const body = (await request.json()) as Record<string, unknown>;
+    const index = mockSalespersons.findIndex((s) => s.id === Number(id));
+
+    if (index === -1) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: 'NOT_FOUND', message: '営業担当者が見つかりません' },
+        },
+        { status: 404 }
+      );
+    }
+
+    // メール重複チェック（自分以外）
+    if (body.email) {
+      const existingEmail = mockSalespersons.find(
+        (s) => s.email === body.email && s.id !== Number(id)
+      );
+      if (existingEmail) {
+        return HttpResponse.json(
+          {
+            success: false,
+            error: {
+              code: 'DUPLICATE_EMAIL',
+              message: 'このメールアドレスは既に登録されています',
+            },
+          },
+          { status: 409 }
+        );
+      }
+    }
+
+    const current = mockSalespersons[index]!;
+    const updated = {
+      ...current,
+      name: (body.name as string) ?? current.name,
+      email: (body.email as string) ?? current.email,
+      positionId: (body.position_id as number) ?? current.positionId,
+      managerId:
+        body.manager_id !== undefined
+          ? (body.manager_id as number | null)
+          : current.managerId,
+      directorId:
+        body.director_id !== undefined
+          ? (body.director_id as number | null)
+          : current.directorId,
+      isActive:
+        body.is_active !== undefined
+          ? (body.is_active as boolean)
+          : current.isActive,
+      updatedAt: new Date().toISOString(),
+    };
+
+    mockSalespersons[index] = updated;
+
+    return HttpResponse.json({
+      success: true,
+      data: updated,
+    });
+  }),
+
+  http.delete(`${BASE_URL}/salespersons/:id`, ({ params }) => {
+    const { id } = params;
+    const index = mockSalespersons.findIndex((s) => s.id === Number(id));
+
+    if (index === -1) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: 'NOT_FOUND', message: '営業担当者が見つかりません' },
+        },
+        { status: 404 }
+      );
+    }
+
+    mockSalespersons.splice(index, 1);
+    return new HttpResponse(null, { status: 204 });
   }),
 ];

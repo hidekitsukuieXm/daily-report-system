@@ -12,6 +12,8 @@ import {
   ReportListPage,
   ReportFormPage,
   ReportDetailPage,
+  SalespersonListPage,
+  SalespersonFormPage,
 } from '@/pages';
 
 export const router = createBrowserRouter([
@@ -54,6 +56,18 @@ export const router = createBrowserRouter([
       {
         path: '/reports/:id/edit',
         element: <ReportFormPage />,
+      },
+      {
+        path: '/salespersons',
+        element: <SalespersonListPage />,
+      },
+      {
+        path: '/salespersons/new',
+        element: <SalespersonFormPage />,
+      },
+      {
+        path: '/salespersons/:id/edit',
+        element: <SalespersonFormPage />,
       },
     ],
   },

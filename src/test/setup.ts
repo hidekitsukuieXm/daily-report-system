@@ -7,6 +7,9 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll, vi } from 'vitest';
 
+// MSWハンドラーのベースURLに合わせて環境変数を設定
+vi.stubEnv('VITE_API_BASE_URL', 'https://api.example.com/api/v1');
+
 import { server } from './mocks/server';
 
 // MSW サーバーの起動・停止

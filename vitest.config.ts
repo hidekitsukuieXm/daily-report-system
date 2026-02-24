@@ -5,6 +5,12 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  // テスト環境用の環境変数
+  define: {
+    'import.meta.env.VITE_API_BASE_URL': JSON.stringify(
+      'https://api.example.com/api/v1'
+    ),
+  },
   test: {
     // テスト環境
     environment: 'jsdom',
@@ -13,7 +19,7 @@ export default defineConfig({
     globals: true,
 
     // セットアップファイル
-    setupFiles: ['./src/test/setup.ts'],
+    setupFiles: [path.resolve(__dirname, './src/test/setup.ts')],
 
     // テストファイルのパターン
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
