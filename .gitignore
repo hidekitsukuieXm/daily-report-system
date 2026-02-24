@@ -30,7 +30,7 @@ Thumbs.db
 vite.config.ts.timestamp-*
 
 # Prisma
-prisma/migrations/
+# Note: migrations/ should be version controlled
 
 # Uploads
 uploads/
