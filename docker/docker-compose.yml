@@ -1,0 +1,102 @@
+# ==============================================================================
+# Daily Report System - Docker Compose (Development)
+# ==============================================================================
+# Usage:
+#   docker-compose up -d          # Start all services
+#   docker-compose down           # Stop all services
+#   docker-compose logs -f app    # View app logs
+#   docker-compose exec db psql -U postgres -d daily_report_db  # Access DB
+# ==============================================================================
+
+services:
+  # ============================================================================
+  # Application (Development with Hot Reload)
+  # ============================================================================
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: development
+    container_name: daily-report-app-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      # Mount source code for hot reload
+      - ..:/app
+      # Preserve node_modules from container
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/daily_report_db?schema=public
+      - VITE_API_URL=http://localhost:3000/api/v1
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - daily-report-network
+    restart: unless-stopped
+
+  # ============================================================================
+  # PostgreSQL Database
+  # ============================================================================
+  db:
+    image: postgres:16-alpine
+    container_name: daily-report-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: daily_report_db
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d daily_report_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - daily-report-network
+    restart: unless-stopped
+
+  # ============================================================================
+  # Prisma Studio (Database GUI)
+  # ============================================================================
+  prisma-studio:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: development
+    container_name: daily-report-prisma-studio
+    ports:
+      - "5555:5555"
+    volumes:
+      - ..:/app
+      - /app/node_modules
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/daily_report_db?schema=public
+    command: npx prisma studio --port 5555 --hostname 0.0.0.0
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - daily-report-network
+    profiles:
+      - tools
+
+# ==============================================================================
+# Networks
+# ==============================================================================
+networks:
+  daily-report-network:
+    driver: bridge
+
+# ==============================================================================
+# Volumes
+# ==============================================================================
+volumes:
+  postgres_data:
+    driver: local

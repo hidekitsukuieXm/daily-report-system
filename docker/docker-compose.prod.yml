@@ -1,0 +1,127 @@
+# ==============================================================================
+# Daily Report System - Docker Compose (Production)
+# ==============================================================================
+# Usage:
+#   docker-compose -f docker-compose.prod.yml up -d --build
+#   docker-compose -f docker-compose.prod.yml down
+#   docker-compose -f docker-compose.prod.yml logs -f
+# ==============================================================================
+
+services:
+  # ============================================================================
+  # Application (Production - Nginx)
+  # ============================================================================
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: production
+    container_name: daily-report-app-prod
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - daily-report-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+  # ============================================================================
+  # PostgreSQL Database (Production)
+  # ============================================================================
+  db:
+    image: postgres:16-alpine
+    container_name: daily-report-db-prod
+    # Do not expose port in production - only internal access
+    # ports:
+    #   - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Database password required}
+      POSTGRES_DB: ${POSTGRES_DB:-daily_report_db}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+      - ./backups:/backups
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-daily_report_db}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - daily-report-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  # ============================================================================
+  # Database Migrations (Run once)
+  # ============================================================================
+  migrate:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: development
+    container_name: daily-report-migrate
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-daily_report_db}?schema=public
+    command: npx prisma migrate deploy
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - daily-report-network
+    profiles:
+      - migrate
+
+  # ============================================================================
+  # Database Seeding (Run once)
+  # ============================================================================
+  seed:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: development
+    container_name: daily-report-seed
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-daily_report_db}?schema=public
+    command: npx prisma db seed
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - daily-report-network
+    profiles:
+      - seed
+
+# ==============================================================================
+# Networks
+# ==============================================================================
+networks:
+  daily-report-network:
+    driver: bridge
+
+# ==============================================================================
+# Volumes
+# ==============================================================================
+volumes:
+  postgres_data_prod:
+    driver: local
