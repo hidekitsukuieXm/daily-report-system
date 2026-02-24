@@ -234,6 +234,91 @@ export const handlers = [
     });
   }),
 
+  // 承認処理API
+  http.post(`${BASE_URL}/reports/:id/approve`, async ({ params, request }) => {
+    const { id } = params;
+    const authHeader = request.headers.get('Authorization');
+
+    if (!authHeader?.startsWith('Bearer ')) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: 'UNAUTHORIZED', message: '認証が必要です' },
+        },
+        { status: 401 }
+      );
+    }
+
+    const body = (await request.json()) as { comment?: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: Number(id),
+        status: 'manager_approved',
+        manager_approved_at: new Date().toISOString(),
+        comment: body.comment,
+      },
+    });
+  }),
+
+  // 差戻し処理API
+  http.post(`${BASE_URL}/reports/:id/reject`, async ({ params, request }) => {
+    const { id } = params;
+    const authHeader = request.headers.get('Authorization');
+
+    if (!authHeader?.startsWith('Bearer ')) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: 'UNAUTHORIZED', message: '認証が必要です' },
+        },
+        { status: 401 }
+      );
+    }
+
+    const body = (await request.json()) as { comment: string };
+
+    if (!body.comment || body.comment.trim() === '') {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: '差戻し理由を入力してください',
+          },
+        },
+        { status: 422 }
+      );
+    }
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: Number(id),
+        status: 'rejected',
+      },
+    });
+  }),
+
+  // 承認履歴取得API
+  http.get(`${BASE_URL}/reports/:id/approval-history`, ({ params }) => {
+    const { id } = params;
+    return HttpResponse.json({
+      success: true,
+      data: [
+        {
+          id: 1,
+          dailyReportId: Number(id),
+          approverId: 2,
+          action: 'approved',
+          comment: '良い内容です',
+          approvalLevel: 'manager',
+          createdAt: '2024-01-15T19:00:00Z',
+        },
+      ],
+    });
+  }),
+
   // マスタAPI
   http.get(`${BASE_URL}/positions`, () => {
     return HttpResponse.json({
