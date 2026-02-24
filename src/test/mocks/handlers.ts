@@ -326,12 +326,101 @@ export const handlers = [
 
   http.post(`${BASE_URL}/reports/:id/submit`, ({ params }) => {
     const { id } = params;
+    const reportId = Number(id);
+
+    // 日報を検索
+    const report = mockReports.find((r) => r.id === reportId);
+    if (!report) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: 'NOT_FOUND', message: '日報が見つかりません' },
+        },
+        { status: 404 }
+      );
+    }
+
+    // ステータスチェック: draft または rejected のみ提出可能
+    if (report.status !== 'draft' && report.status !== 'rejected') {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'INVALID_STATUS',
+            message: 'この状態では提出できません',
+          },
+        },
+        { status: 403 }
+      );
+    }
+
+    // 訪問記録チェック: 1件以上必要
+    if (report.visitCount === 0) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'NO_VISITS',
+            message: '訪問記録を1件以上入力してください',
+          },
+        },
+        { status: 422 }
+      );
+    }
+
+    // ステータスを更新
+    report.status = 'submitted';
+    report.submittedAt = new Date().toISOString();
+
     return HttpResponse.json({
       success: true,
       data: {
-        id: Number(id),
+        id: reportId,
         status: 'submitted',
-        submitted_at: new Date().toISOString(),
+        submitted_at: report.submittedAt,
+      },
+    });
+  }),
+
+  http.post(`${BASE_URL}/reports/:id/withdraw`, ({ params }) => {
+    const { id } = params;
+    const reportId = Number(id);
+
+    // 日報を検索
+    const report = mockReports.find((r) => r.id === reportId);
+    if (!report) {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: { code: 'NOT_FOUND', message: '日報が見つかりません' },
+        },
+        { status: 404 }
+      );
+    }
+
+    // ステータスチェック: submitted のみ取り下げ可能
+    if (report.status !== 'submitted') {
+      return HttpResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'INVALID_STATUS',
+            message: 'この状態では取り下げできません',
+          },
+        },
+        { status: 403 }
+      );
+    }
+
+    // ステータスを更新
+    report.status = 'draft';
+    report.submittedAt = null;
+
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: reportId,
+        status: 'draft',
       },
     });
   }),

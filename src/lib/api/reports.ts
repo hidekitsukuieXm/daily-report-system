@@ -87,3 +87,14 @@ export async function submitReport(
   > = await apiClient.post(`/reports/${id}/submit`);
   return response.data.data;
 }
+
+/**
+ * 日報の提出を取り下げ
+ */
+export async function withdrawReport(
+  id: number
+): Promise<{ id: number; status: string }> {
+  const response: AxiosResponse<ApiResponse<{ id: number; status: string }>> =
+    await apiClient.post(`/reports/${id}/withdraw`);
+  return response.data.data;
+}
