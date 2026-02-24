@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run lint:*)",
+      "Bash(npm run test:run:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat\\(auth\\): 認証機能の実装\n\nIssue #1に対応する認証機能を実装\n\n## 実装内容\n- JWT認証用ユーティリティ \\(src/lib/auth/jwt.ts\\)\n- パスワードハッシュ化ユーティリティ \\(src/lib/auth/password.ts\\)\n- Axios APIクライアント with インターセプター \\(src/lib/api/client.ts\\)\n- 認証API関数 \\(src/lib/api/auth.ts\\)\n- Zustand認証ストア \\(src/stores/auth.ts\\)\n- ログイン画面 \\(src/pages/LoginPage.tsx\\)\n- ダッシュボード画面 \\(src/pages/DashboardPage.tsx\\)\n- 認証ガードコンポーネント \\(src/components/auth/AuthGuard.tsx\\)\n- React Routerルーティング設定 \\(src/router/index.tsx\\)\n\n## 依存関係追加\n- zustand: 状態管理\n- react-router-dom: ルーティング\n- axios: HTTP通信\n- @tanstack/react-query: サーバー状態管理\n- bcryptjs: パスワードハッシュ化\n\n## テスト\n- パスワードユーティリティのテスト\n- 認証ストアのテスト\n- ログイン画面のテスト\n\nCloses #1\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+    ]
+  }
+}
