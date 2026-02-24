@@ -1,0 +1,289 @@
+/**
+ * 日報一覧画面スタイル
+ */
+
+.report-list-page {
+  margin: 0 auto;
+  max-width: 1000px;
+}
+
+.page-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.page-title {
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.create-button {
+  background-color: #1976d2;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.625rem 1.25rem;
+  transition: background-color 0.2s;
+}
+
+.create-button:hover {
+  background-color: #1565c0;
+}
+
+.error-message {
+  background-color: #ffebee;
+  border: 1px solid #ef9a9a;
+  border-radius: 4px;
+  color: #d32f2f;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+}
+
+/* 検索フォーム */
+.search-form {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+}
+
+.search-title {
+  color: #333;
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0 0 1rem;
+}
+
+.search-fields {
+  align-items: flex-end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.search-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.field-label {
+  color: #666;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.field-input,
+.field-select {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  min-width: 140px;
+  padding: 0.5rem 0.75rem;
+}
+
+.field-input:focus,
+.field-select:focus {
+  border-color: #1976d2;
+  outline: none;
+}
+
+.date-range {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.date-separator {
+  color: #666;
+}
+
+.search-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.search-button {
+  background-color: #1976d2;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.2s;
+}
+
+.search-button:disabled {
+  background-color: #90caf9;
+  cursor: not-allowed;
+}
+
+.search-button:hover:not(:disabled) {
+  background-color: #1565c0;
+}
+
+.clear-button {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #666;
+  cursor: pointer;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.2s;
+}
+
+.clear-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.clear-button:hover:not(:disabled) {
+  background-color: #f5f5f5;
+}
+
+/* テーブル */
+.report-table-container {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+  padding: 1.25rem;
+}
+
+.result-count {
+  color: #666;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.loading,
+.empty-message {
+  color: #999;
+  padding: 2rem;
+  text-align: center;
+}
+
+.report-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.report-table th,
+.report-table td {
+  border-bottom: 1px solid #e0e0e0;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.report-table th {
+  background-color: #fafafa;
+  color: #666;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.report-table td {
+  color: #333;
+  font-size: 0.875rem;
+}
+
+.report-table tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+/* ステータスバッジ */
+.status-badge {
+  border-radius: 4px;
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+}
+
+.status-draft {
+  background-color: #e0e0e0;
+  color: #666;
+}
+
+.status-submitted {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.status-manager-approved {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+.status-approved {
+  background-color: #e8f5e9;
+  color: #388e3c;
+}
+
+.status-rejected {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+.detail-button {
+  background-color: transparent;
+  border: 1px solid #1976d2;
+  border-radius: 4px;
+  color: #1976d2;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  transition: background-color 0.2s;
+}
+
+.detail-button:hover {
+  background-color: #e3f2fd;
+}
+
+/* ページネーション */
+.pagination {
+  align-items: center;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+.page-button {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #333;
+  cursor: pointer;
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+  transition: background-color 0.2s;
+}
+
+.page-button:disabled {
+  color: #999;
+  cursor: not-allowed;
+}
+
+.page-button:hover:not(:disabled) {
+  background-color: #f5f5f5;
+}
+
+.page-info {
+  color: #666;
+  font-size: 0.875rem;
+}

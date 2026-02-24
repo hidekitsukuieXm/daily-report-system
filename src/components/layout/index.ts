@@ -1,0 +1,5 @@
+/**
+ * レイアウトコンポーネント
+ */
+
+export * from './MainLayout';

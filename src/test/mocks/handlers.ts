@@ -15,8 +15,26 @@ const mockUser = {
 };
 
 const mockCustomers = [
-  { id: 1, name: '株式会社ABC', industry: '製造業', isActive: true },
-  { id: 2, name: '株式会社XYZ', industry: 'IT・通信', isActive: true },
+  {
+    id: 1,
+    name: '株式会社ABC',
+    address: '東京都千代田区1-1-1',
+    phone: '03-1234-5678',
+    industry: '製造業',
+    isActive: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: 2,
+    name: '株式会社XYZ',
+    address: '東京都渋谷区2-2-2',
+    phone: '03-2345-6789',
+    industry: 'IT・通信',
+    isActive: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+  },
 ];
 
 const mockReports = [
@@ -26,8 +44,94 @@ const mockReports = [
     status: 'submitted',
     salesperson: { id: 1, name: '山田太郎' },
     visitCount: 3,
+    submittedAt: '2024-01-15T18:00:00Z',
+    createdAt: '2024-01-15T17:00:00Z',
+    updatedAt: '2024-01-15T18:00:00Z',
+  },
+  {
+    id: 2,
+    reportDate: '2024-01-14',
+    status: 'approved',
+    salesperson: { id: 1, name: '山田太郎' },
+    visitCount: 2,
+    submittedAt: '2024-01-14T18:00:00Z',
+    createdAt: '2024-01-14T17:00:00Z',
+    updatedAt: '2024-01-14T19:00:00Z',
+  },
+  {
+    id: 3,
+    reportDate: '2024-01-16',
+    status: 'draft',
+    salesperson: { id: 1, name: '山田太郎' },
+    visitCount: 0,
+    submittedAt: null,
+    createdAt: '2024-01-16T10:00:00Z',
+    updatedAt: '2024-01-16T10:00:00Z',
   },
 ];
+
+const mockReportDetail = {
+  id: 1,
+  reportDate: '2024-01-15',
+  status: 'submitted',
+  problem: '競合他社の価格攻勢が激しい',
+  plan: 'ABC社への見積書作成',
+  submittedAt: '2024-01-15T18:00:00Z',
+  managerApprovedAt: null,
+  directorApprovedAt: null,
+  salesperson: {
+    id: 1,
+    name: '山田太郎',
+    email: 'yamada@example.com',
+    positionId: 1,
+    position: { id: 1, name: '担当', level: 1 },
+  },
+  visitRecords: [
+    {
+      id: 1,
+      dailyReportId: 1,
+      customerId: 1,
+      visitTime: '2024-01-15T10:00:00Z',
+      content:
+        '新商品の提案を実施。担当者は興味を示しており、次回見積書を持参予定。',
+      result: 'negotiating',
+      customer: { id: 1, name: '株式会社ABC' },
+      attachments: [
+        {
+          id: 1,
+          visitRecordId: 1,
+          fileName: 'proposal.pdf',
+          filePath: '/uploads/proposal.pdf',
+          contentType: 'application/pdf',
+          fileSize: 1024000,
+          createdAt: '2024-01-15T10:30:00Z',
+        },
+      ],
+      createdAt: '2024-01-15T17:00:00Z',
+      updatedAt: '2024-01-15T17:00:00Z',
+    },
+    {
+      id: 2,
+      dailyReportId: 1,
+      customerId: 2,
+      visitTime: '2024-01-15T14:00:00Z',
+      content: '定期訪問。特に問題なし。',
+      result: 'information_gathering',
+      customer: { id: 2, name: '株式会社XYZ' },
+      attachments: [],
+      createdAt: '2024-01-15T17:00:00Z',
+      updatedAt: '2024-01-15T17:00:00Z',
+    },
+  ],
+  approvalHistories: [],
+  comments: [],
+  createdAt: '2024-01-15T17:00:00Z',
+  updatedAt: '2024-01-15T18:00:00Z',
+};
+
+let nextReportId = 4;
+let nextVisitId = 3;
+let nextAttachmentId = 2;
 
 export const handlers = [
   // 認証API
@@ -174,32 +278,142 @@ export const handlers = [
     return HttpResponse.json({
       success: true,
       data: {
+        ...mockReportDetail,
         id: Number(id),
-        reportDate: '2024-01-15',
-        status: 'submitted',
-        problem: '課題・相談内容',
-        plan: '明日やること',
-        salesperson: mockUser,
-        visitRecords: [],
-        approvalHistories: [],
-        comments: [],
       },
     });
   }),
 
   http.post(`${BASE_URL}/reports`, async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>;
+    const newId = nextReportId++;
     return HttpResponse.json(
       {
         success: true,
         data: {
-          id: 1,
+          id: newId,
           status: 'draft',
+          salesperson: mockUser,
+          visitRecords: [],
+          approvalHistories: [],
+          comments: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
           ...body,
         },
       },
       { status: 201 }
     );
+  }),
+
+  http.put(`${BASE_URL}/reports/:id`, async ({ request, params }) => {
+    const { id } = params;
+    const body = (await request.json()) as Record<string, unknown>;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        ...mockReportDetail,
+        id: Number(id),
+        ...body,
+        updatedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  http.delete(`${BASE_URL}/reports/:id`, () => {
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.post(`${BASE_URL}/reports/:id/submit`, ({ params }) => {
+    const { id } = params;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: Number(id),
+        status: 'submitted',
+        submitted_at: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 訪問記録API
+  http.get(`${BASE_URL}/reports/:reportId/visits`, () => {
+    return HttpResponse.json({
+      success: true,
+      data: {
+        items: mockReportDetail.visitRecords,
+      },
+    });
+  }),
+
+  http.post(`${BASE_URL}/reports/:reportId/visits`, async ({ request }) => {
+    const body = (await request.json()) as Record<string, unknown>;
+    const newId = nextVisitId++;
+    return HttpResponse.json(
+      {
+        success: true,
+        data: {
+          id: newId,
+          customer: mockCustomers[0],
+          attachments: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          ...body,
+        },
+      },
+      { status: 201 }
+    );
+  }),
+
+  http.put(`${BASE_URL}/visits/:id`, async ({ request, params }) => {
+    const { id } = params;
+    const body = (await request.json()) as Record<string, unknown>;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: Number(id),
+        customer: mockCustomers[0],
+        attachments: [],
+        updatedAt: new Date().toISOString(),
+        ...body,
+      },
+    });
+  }),
+
+  http.delete(`${BASE_URL}/visits/:id`, () => {
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // 添付ファイルAPI
+  http.post(`${BASE_URL}/visits/:visitId/attachments`, () => {
+    const newId = nextAttachmentId++;
+    return HttpResponse.json(
+      {
+        success: true,
+        data: {
+          id: newId,
+          file_name: 'uploaded_file.pdf',
+          file_size: 1024000,
+          content_type: 'application/pdf',
+          download_url: `/api/v1/attachments/${newId}`,
+          created_at: new Date().toISOString(),
+        },
+      },
+      { status: 201 }
+    );
+  }),
+
+  http.get(`${BASE_URL}/attachments/:id`, () => {
+    return new HttpResponse(new Blob(['file content']), {
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': 'attachment; filename="file.pdf"',
+      },
+    });
+  }),
+
+  http.delete(`${BASE_URL}/attachments/:id`, () => {
+    return new HttpResponse(null, { status: 204 });
   }),
 
   // 顧客API
@@ -216,6 +430,24 @@ export const handlers = [
         },
       },
     });
+  }),
+
+  http.get(`${BASE_URL}/customers/:id`, ({ params }) => {
+    const { id } = params;
+    const customer = mockCustomers.find((c) => c.id === Number(id));
+    if (customer) {
+      return HttpResponse.json({
+        success: true,
+        data: customer,
+      });
+    }
+    return HttpResponse.json(
+      {
+        success: false,
+        error: { code: 'NOT_FOUND', message: '顧客が見つかりません' },
+      },
+      { status: 404 }
+    );
   }),
 
   // 承認待ちAPI
@@ -256,6 +488,8 @@ export const handlers = [
           { code: 'manufacturing', name: '製造業' },
           { code: 'it', name: 'IT・通信' },
           { code: 'finance', name: '金融・保険' },
+          { code: 'retail', name: '小売・流通' },
+          { code: 'service', name: 'サービス' },
         ],
       },
     });
@@ -269,6 +503,8 @@ export const handlers = [
           { code: 'negotiating', name: '商談中' },
           { code: 'closed_won', name: '成約' },
           { code: 'closed_lost', name: '見送り' },
+          { code: 'information_gathering', name: '情報収集' },
+          { code: 'other', name: 'その他' },
         ],
       },
     });

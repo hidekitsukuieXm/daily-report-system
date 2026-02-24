@@ -1,0 +1,396 @@
+/**
+ * 日報詳細画面スタイル
+ */
+
+.report-detail-page {
+  margin: 0 auto;
+  max-width: 800px;
+}
+
+.page-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.page-title {
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.page-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-button,
+.back-button {
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.2s;
+}
+
+.edit-button {
+  background-color: #1976d2;
+  color: #fff;
+}
+
+.edit-button:hover {
+  background-color: #1565c0;
+}
+
+.back-button {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  color: #666;
+}
+
+.back-button:hover {
+  background-color: #f5f5f5;
+}
+
+.loading,
+.not-found {
+  color: #999;
+  padding: 2rem;
+  text-align: center;
+}
+
+.error-message {
+  background-color: #ffebee;
+  border: 1px solid #ef9a9a;
+  border-radius: 4px;
+  color: #d32f2f;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+}
+
+/* セクション */
+.detail-section {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+  margin-bottom: 1rem;
+  padding: 1.25rem;
+}
+
+.section-title {
+  border-bottom: 1px solid #e0e0e0;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0 0 1rem;
+  padding-bottom: 0.75rem;
+}
+
+/* 基本情報 */
+.detail-list {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, 1fr);
+  margin: 0;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detail-item dt {
+  color: #666;
+  font-size: 0.75rem;
+}
+
+.detail-item dd {
+  color: #333;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* ステータスバッジ */
+.status-badge {
+  border-radius: 4px;
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+}
+
+.status-draft {
+  background-color: #e0e0e0;
+  color: #666;
+}
+
+.status-submitted {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.status-manager-approved {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+.status-approved {
+  background-color: #e8f5e9;
+  color: #388e3c;
+}
+
+.status-rejected {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+/* 訪問記録 */
+.empty-message {
+  color: #999;
+  font-size: 0.875rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.visit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.visit-item {
+  background-color: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 1rem;
+}
+
+.visit-header {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.visit-customer {
+  color: #333;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.visit-time {
+  color: #666;
+  font-size: 0.75rem;
+}
+
+.visit-content {
+  color: #333;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin: 0 0 0.5rem;
+  white-space: pre-line;
+}
+
+.visit-result {
+  background-color: #e3f2fd;
+  border-radius: 4px;
+  color: #1976d2;
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.visit-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.attachment-link {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #1976d2;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  text-decoration: none;
+}
+
+.attachment-link:hover {
+  background-color: #e3f2fd;
+}
+
+.attachment-size {
+  color: #999;
+  margin-left: 0.25rem;
+}
+
+/* テキスト */
+.detail-text {
+  color: #333;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-line;
+}
+
+/* 承認履歴 */
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.history-item {
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 0.75rem;
+}
+
+.history-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.history-header {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.history-date {
+  color: #666;
+  font-size: 0.75rem;
+}
+
+.history-approver {
+  color: #333;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.history-action {
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.125rem 0.375rem;
+}
+
+.action-approved {
+  background-color: #e8f5e9;
+  color: #388e3c;
+}
+
+.action-rejected {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+.history-comment {
+  color: #666;
+  font-size: 0.875rem;
+  margin: 0.5rem 0 0;
+}
+
+/* コメント */
+.comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.comment-item {
+  background-color: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 0.75rem;
+}
+
+.comment-header {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.comment-author {
+  color: #333;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.comment-date {
+  color: #999;
+  font-size: 0.75rem;
+}
+
+.comment-content {
+  color: #333;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* 承認アクション */
+.approval-actions {
+  background-color: #e3f2fd;
+  border-radius: 8px;
+  margin-top: 1rem;
+  padding: 1.25rem;
+}
+
+.approval-notice {
+  color: #1976d2;
+  font-size: 0.875rem;
+  margin: 0 0 1rem;
+}
+
+.approval-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.approve-button,
+.reject-button {
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  transition: background-color 0.2s;
+}
+
+.approve-button {
+  background-color: #388e3c;
+  color: #fff;
+}
+
+.approve-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.approve-button:hover:not(:disabled) {
+  background-color: #2e7d32;
+}
+
+.reject-button {
+  background-color: #fff;
+  border: 1px solid #d32f2f;
+  color: #d32f2f;
+}
+
+.reject-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.reject-button:hover:not(:disabled) {
+  background-color: #ffebee;
+}
