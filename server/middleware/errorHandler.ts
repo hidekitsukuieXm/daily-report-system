@@ -5,6 +5,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
 import { Prisma } from '@prisma/client';
+import multer from 'multer';
 import { AppError } from '../lib/errors';
 
 interface ErrorResponse {
@@ -46,6 +47,20 @@ export function errorHandler(
       },
     });
     return;
+  }
+
+  // Multerエラー（ファイルサイズ超過など）
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      res.status(413).json({
+        success: false,
+        error: {
+          code: 'FILE_TOO_LARGE',
+          message: 'ファイルサイズは10MB以下にしてください',
+        },
+      });
+      return;
+    }
   }
 
   // Prismaエラー

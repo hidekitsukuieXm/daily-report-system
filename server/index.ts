@@ -7,6 +7,7 @@ import cors from 'cors';
 import { devAuthMiddleware } from './middleware/auth';
 import { errorHandler } from './middleware/errorHandler';
 import reportsRouter from './routes/reports';
+import attachmentsRouter from './routes/attachments';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -17,6 +18,7 @@ app.use(express.json());
 
 // API Routes
 app.use('/api/v1/reports', devAuthMiddleware, reportsRouter);
+app.use('/api/v1', devAuthMiddleware, attachmentsRouter);
 
 // Error Handler
 app.use(errorHandler);

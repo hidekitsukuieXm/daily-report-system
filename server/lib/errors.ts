@@ -54,3 +54,17 @@ export class InvalidStatusError extends AppError {
     this.name = 'InvalidStatusError';
   }
 }
+
+export class FileTooLargeError extends AppError {
+  constructor(message: string = 'ファイルサイズは10MB以下にしてください') {
+    super(413, 'FILE_TOO_LARGE', message);
+    this.name = 'FileTooLargeError';
+  }
+}
+
+export class UnsupportedFileTypeError extends AppError {
+  constructor(message: string = 'サポートされていないファイル形式です') {
+    super(415, 'UNSUPPORTED_FILE_TYPE', message);
+    this.name = 'UnsupportedFileTypeError';
+  }
+}
