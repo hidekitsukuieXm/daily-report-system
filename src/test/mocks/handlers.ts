@@ -4,14 +4,19 @@
 
 import { http, HttpResponse } from 'msw';
 
-const BASE_URL = 'https://api.example.com/api/v1';
-
 // サンプルデータ
 const mockUser = {
   id: 1,
   name: '山田太郎',
   email: 'yamada@example.com',
   position: { id: 1, name: '担当', level: 1 },
+};
+
+const mockManagerUser = {
+  id: 2,
+  name: '鈴木課長',
+  email: 'suzuki@example.com',
+  position: { id: 2, name: '課長', level: 2 },
 };
 
 const mockCustomers = [
@@ -70,72 +75,23 @@ const mockReports = [
   },
 ];
 
-const mockReportDetail = {
-  id: 1,
-  reportDate: '2024-01-15',
-  status: 'submitted',
-  problem: '競合他社の価格攻勢が激しい',
-  plan: 'ABC社への見積書作成',
-  submittedAt: '2024-01-15T18:00:00Z',
-  managerApprovedAt: null,
-  directorApprovedAt: null,
-  salesperson: {
-    id: 1,
-    name: '山田太郎',
-    email: 'yamada@example.com',
-    positionId: 1,
-    position: { id: 1, name: '担当', level: 1 },
-  },
-  visitRecords: [
-    {
-      id: 1,
-      dailyReportId: 1,
-      customerId: 1,
-      visitTime: '2024-01-15T10:00:00Z',
-      content:
-        '新商品の提案を実施。担当者は興味を示しており、次回見積書を持参予定。',
-      result: 'negotiating',
-      customer: { id: 1, name: '株式会社ABC' },
-      attachments: [
-        {
-          id: 1,
-          visitRecordId: 1,
-          fileName: 'proposal.pdf',
-          filePath: '/uploads/proposal.pdf',
-          contentType: 'application/pdf',
-          fileSize: 1024000,
-          createdAt: '2024-01-15T10:30:00Z',
-        },
-      ],
-      createdAt: '2024-01-15T17:00:00Z',
-      updatedAt: '2024-01-15T17:00:00Z',
-    },
-    {
-      id: 2,
-      dailyReportId: 1,
-      customerId: 2,
-      visitTime: '2024-01-15T14:00:00Z',
-      content: '定期訪問。特に問題なし。',
-      result: 'information_gathering',
-      customer: { id: 2, name: '株式会社XYZ' },
-      attachments: [],
-      createdAt: '2024-01-15T17:00:00Z',
-      updatedAt: '2024-01-15T17:00:00Z',
-    },
-  ],
-  approvalHistories: [],
-  comments: [],
-  createdAt: '2024-01-15T17:00:00Z',
-  updatedAt: '2024-01-15T18:00:00Z',
+const mockDashboardSummary = {
+  visitCount: 15,
+  reportCount: 5,
+  pendingApprovalCount: 3,
 };
 
-let nextReportId = 4;
-let nextVisitId = 3;
-let nextAttachmentId = 2;
-
 export const handlers = [
+  // ダッシュボードAPI
+  http.get(/\/dashboard\/summary/, () => {
+    return HttpResponse.json({
+      success: true,
+      data: mockDashboardSummary,
+    });
+  }),
+
   // 認証API
-  http.post(`${BASE_URL}/auth/login`, async ({ request }) => {
+  http.post(/\/auth\/login/, async ({ request }) => {
     const body = (await request.json()) as { email: string; password: string };
 
     if (
@@ -154,6 +110,22 @@ export const handlers = [
       });
     }
 
+    if (
+      body.email === 'suzuki@example.com' &&
+      body.password === 'password123'
+    ) {
+      return HttpResponse.json({
+        success: true,
+        data: {
+          access_token: 'mock-manager-access-token',
+          refresh_token: 'mock-manager-refresh-token',
+          token_type: 'Bearer',
+          expires_in: 3600,
+          user: mockManagerUser,
+        },
+      });
+    }
+
     return HttpResponse.json(
       {
         success: false,
@@ -166,14 +138,14 @@ export const handlers = [
     );
   }),
 
-  http.post(`${BASE_URL}/auth/logout`, () => {
+  http.post(/\/auth\/logout/, () => {
     return HttpResponse.json({
       success: true,
       data: { message: 'ログアウトしました' },
     });
   }),
 
-  http.get(`${BASE_URL}/auth/me`, ({ request }) => {
+  http.get(/\/auth\/me/, ({ request }) => {
     const authHeader = request.headers.get('Authorization');
 
     if (!authHeader?.startsWith('Bearer ')) {
@@ -192,7 +164,7 @@ export const handlers = [
     });
   }),
 
-  http.post(`${BASE_URL}/auth/refresh`, async ({ request }) => {
+  http.post(/\/auth\/refresh/, async ({ request }) => {
     const body = (await request.json()) as { refresh_token: string };
 
     if (body.refresh_token === 'mock-refresh-token') {
@@ -220,45 +192,8 @@ export const handlers = [
     );
   }),
 
-  http.put(`${BASE_URL}/auth/password`, async ({ request }) => {
-    const authHeader = request.headers.get('Authorization');
-
-    if (!authHeader?.startsWith('Bearer ')) {
-      return HttpResponse.json(
-        {
-          success: false,
-          error: { code: 'UNAUTHORIZED', message: '認証が必要です' },
-        },
-        { status: 401 }
-      );
-    }
-
-    const body = (await request.json()) as {
-      current_password: string;
-      new_password: string;
-    };
-
-    if (body.current_password !== 'password123') {
-      return HttpResponse.json(
-        {
-          success: false,
-          error: {
-            code: 'INVALID_PASSWORD',
-            message: '現在のパスワードが正しくありません',
-          },
-        },
-        { status: 400 }
-      );
-    }
-
-    return HttpResponse.json({
-      success: true,
-      data: { message: 'パスワードを変更しました' },
-    });
-  }),
-
   // 日報API
-  http.get(`${BASE_URL}/reports`, () => {
+  http.get(/\/reports$/, () => {
     return HttpResponse.json({
       success: true,
       data: {
@@ -273,185 +208,8 @@ export const handlers = [
     });
   }),
 
-  http.get(`${BASE_URL}/reports/:id`, ({ params }) => {
-    const { id } = params;
-    return HttpResponse.json({
-      success: true,
-      data: {
-        ...mockReportDetail,
-        id: Number(id),
-      },
-    });
-  }),
-
-  http.post(`${BASE_URL}/reports`, async ({ request }) => {
-    const body = (await request.json()) as Record<string, unknown>;
-    const newId = nextReportId++;
-    return HttpResponse.json(
-      {
-        success: true,
-        data: {
-          id: newId,
-          status: 'draft',
-          salesperson: mockUser,
-          visitRecords: [],
-          approvalHistories: [],
-          comments: [],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          ...body,
-        },
-      },
-      { status: 201 }
-    );
-  }),
-
-  http.put(`${BASE_URL}/reports/:id`, async ({ request, params }) => {
-    const { id } = params;
-    const body = (await request.json()) as Record<string, unknown>;
-    return HttpResponse.json({
-      success: true,
-      data: {
-        ...mockReportDetail,
-        id: Number(id),
-        ...body,
-        updatedAt: new Date().toISOString(),
-      },
-    });
-  }),
-
-  http.delete(`${BASE_URL}/reports/:id`, () => {
-    return new HttpResponse(null, { status: 204 });
-  }),
-
-  http.post(`${BASE_URL}/reports/:id/submit`, ({ params }) => {
-    const { id } = params;
-    return HttpResponse.json({
-      success: true,
-      data: {
-        id: Number(id),
-        status: 'submitted',
-        submitted_at: new Date().toISOString(),
-      },
-    });
-  }),
-
-  // 訪問記録API
-  http.get(`${BASE_URL}/reports/:reportId/visits`, () => {
-    return HttpResponse.json({
-      success: true,
-      data: {
-        items: mockReportDetail.visitRecords,
-      },
-    });
-  }),
-
-  http.post(`${BASE_URL}/reports/:reportId/visits`, async ({ request }) => {
-    const body = (await request.json()) as Record<string, unknown>;
-    const newId = nextVisitId++;
-    return HttpResponse.json(
-      {
-        success: true,
-        data: {
-          id: newId,
-          customer: mockCustomers[0],
-          attachments: [],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          ...body,
-        },
-      },
-      { status: 201 }
-    );
-  }),
-
-  http.put(`${BASE_URL}/visits/:id`, async ({ request, params }) => {
-    const { id } = params;
-    const body = (await request.json()) as Record<string, unknown>;
-    return HttpResponse.json({
-      success: true,
-      data: {
-        id: Number(id),
-        customer: mockCustomers[0],
-        attachments: [],
-        updatedAt: new Date().toISOString(),
-        ...body,
-      },
-    });
-  }),
-
-  http.delete(`${BASE_URL}/visits/:id`, () => {
-    return new HttpResponse(null, { status: 204 });
-  }),
-
-  // 添付ファイルAPI
-  http.post(`${BASE_URL}/visits/:visitId/attachments`, () => {
-    const newId = nextAttachmentId++;
-    return HttpResponse.json(
-      {
-        success: true,
-        data: {
-          id: newId,
-          file_name: 'uploaded_file.pdf',
-          file_size: 1024000,
-          content_type: 'application/pdf',
-          download_url: `/api/v1/attachments/${newId}`,
-          created_at: new Date().toISOString(),
-        },
-      },
-      { status: 201 }
-    );
-  }),
-
-  http.get(`${BASE_URL}/attachments/:id`, () => {
-    return new HttpResponse(new Blob(['file content']), {
-      headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename="file.pdf"',
-      },
-    });
-  }),
-
-  http.delete(`${BASE_URL}/attachments/:id`, () => {
-    return new HttpResponse(null, { status: 204 });
-  }),
-
-  // 顧客API
-  http.get(`${BASE_URL}/customers`, () => {
-    return HttpResponse.json({
-      success: true,
-      data: {
-        items: mockCustomers,
-        pagination: {
-          currentPage: 1,
-          perPage: 20,
-          totalPages: 1,
-          totalCount: mockCustomers.length,
-        },
-      },
-    });
-  }),
-
-  http.get(`${BASE_URL}/customers/:id`, ({ params }) => {
-    const { id } = params;
-    const customer = mockCustomers.find((c) => c.id === Number(id));
-    if (customer) {
-      return HttpResponse.json({
-        success: true,
-        data: customer,
-      });
-    }
-    return HttpResponse.json(
-      {
-        success: false,
-        error: { code: 'NOT_FOUND', message: '顧客が見つかりません' },
-      },
-      { status: 404 }
-    );
-  }),
-
   // 承認待ちAPI
-  http.get(`${BASE_URL}/approvals`, () => {
+  http.get(/\/approvals/, () => {
     return HttpResponse.json({
       success: true,
       data: {
@@ -466,8 +224,24 @@ export const handlers = [
     });
   }),
 
+  // 顧客API
+  http.get(/\/customers$/, () => {
+    return HttpResponse.json({
+      success: true,
+      data: {
+        items: mockCustomers,
+        pagination: {
+          currentPage: 1,
+          perPage: 20,
+          totalPages: 1,
+          totalCount: mockCustomers.length,
+        },
+      },
+    });
+  }),
+
   // マスタAPI
-  http.get(`${BASE_URL}/positions`, () => {
+  http.get(/\/positions/, () => {
     return HttpResponse.json({
       success: true,
       data: {
@@ -475,36 +249,6 @@ export const handlers = [
           { id: 1, name: '担当', level: 1 },
           { id: 2, name: '課長', level: 2 },
           { id: 3, name: '部長', level: 3 },
-        ],
-      },
-    });
-  }),
-
-  http.get(`${BASE_URL}/industries`, () => {
-    return HttpResponse.json({
-      success: true,
-      data: {
-        items: [
-          { code: 'manufacturing', name: '製造業' },
-          { code: 'it', name: 'IT・通信' },
-          { code: 'finance', name: '金融・保険' },
-          { code: 'retail', name: '小売・流通' },
-          { code: 'service', name: 'サービス' },
-        ],
-      },
-    });
-  }),
-
-  http.get(`${BASE_URL}/visit-results`, () => {
-    return HttpResponse.json({
-      success: true,
-      data: {
-        items: [
-          { code: 'negotiating', name: '商談中' },
-          { code: 'closed_won', name: '成約' },
-          { code: 'closed_lost', name: '見送り' },
-          { code: 'information_gathering', name: '情報収集' },
-          { code: 'other', name: 'その他' },
         ],
       },
     });
