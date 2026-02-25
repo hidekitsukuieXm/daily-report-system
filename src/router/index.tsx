@@ -9,6 +9,7 @@ import { MainLayout } from '@/components/layout';
 import {
   LoginPage,
   DashboardPage,
+  ApprovalsPage,
   ReportListPage,
   ReportFormPage,
   ReportDetailPage,
@@ -54,6 +55,10 @@ export const router = createBrowserRouter([
       {
         path: '/reports/:id/edit',
         element: <ReportFormPage />,
+      },
+      {
+        path: '/approvals',
+        element: <ApprovalsPage />,
       },
     ],
   },
