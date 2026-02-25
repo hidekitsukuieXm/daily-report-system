@@ -5,7 +5,15 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import { AuthGuard, GuestGuard } from '@/components/auth';
-import { LoginPage, DashboardPage, ApprovalsPage } from '@/pages';
+import { MainLayout } from '@/components/layout';
+import {
+  LoginPage,
+  DashboardPage,
+  ApprovalsPage,
+  ReportListPage,
+  ReportFormPage,
+  ReportDetailPage,
+} from '@/pages';
 
 export const router = createBrowserRouter([
   {
@@ -21,20 +29,38 @@ export const router = createBrowserRouter([
     ),
   },
   {
-    path: '/dashboard',
+    // 認証が必要なルート（メインレイアウト付き）
     element: (
       <AuthGuard>
-        <DashboardPage />
+        <MainLayout />
       </AuthGuard>
     ),
-  },
-  {
-    path: '/approvals',
-    element: (
-      <AuthGuard>
-        <ApprovalsPage />
-      </AuthGuard>
-    ),
+    children: [
+      {
+        path: '/dashboard',
+        element: <DashboardPage />,
+      },
+      {
+        path: '/reports',
+        element: <ReportListPage />,
+      },
+      {
+        path: '/reports/new',
+        element: <ReportFormPage />,
+      },
+      {
+        path: '/reports/:id',
+        element: <ReportDetailPage />,
+      },
+      {
+        path: '/reports/:id/edit',
+        element: <ReportFormPage />,
+      },
+      {
+        path: '/approvals',
+        element: <ApprovalsPage />,
+      },
+    ],
   },
   {
     path: '*',
