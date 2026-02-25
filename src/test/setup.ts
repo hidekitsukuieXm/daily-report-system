@@ -10,7 +10,7 @@ import { afterAll, afterEach, beforeAll, vi } from 'vitest';
 import { server } from './mocks/server';
 
 // MSW サーバーの起動・停止
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }));
 afterAll(() => server.close());
 afterEach(() => server.resetHandlers());
 

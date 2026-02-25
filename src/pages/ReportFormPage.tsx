@@ -3,10 +3,10 @@
  * SCR-011, SCR-012
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useBlocker } from 'react-router-dom';
 
 import {
   deleteAttachment,
@@ -71,6 +71,70 @@ export function ReportFormPage() {
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
+
+  // 送信完了フラグ（離脱確認をスキップするため）
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // フォームの変更状態を追跡
+  const isDirty = useMemo(() => {
+    if (isSubmitted) return false;
+    // 新規作成時：何か入力があればdirty
+    if (!isEdit) {
+      return (
+        problem.length > 0 ||
+        plan.length > 0 ||
+        visits.some(
+          (v) =>
+            v.customer_id !== 0 ||
+            v.content.length > 0 ||
+            v.visit_time.length > 0 ||
+            v.result !== '' ||
+            v.newFiles.length > 0
+        )
+      );
+    }
+    // 編集時：元データと比較（簡略化のため、何か変更があればdirtyとみなす）
+    if (!currentReport) return false;
+    const originalProblem = currentReport.problem ?? '';
+    const originalPlan = currentReport.plan ?? '';
+    return (
+      problem !== originalProblem ||
+      plan !== originalPlan ||
+      visits.some((v) => v.newFiles.length > 0)
+    );
+  }, [isEdit, isSubmitted, problem, plan, visits, currentReport]);
+
+  // ブラウザのbeforeunloadイベントで離脱を警告
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        // 標準的なメッセージを表示（カスタムメッセージは無視される）
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isDirty]);
+
+  // React Routerのナビゲーションブロック
+  const blocker = useBlocker(
+    useCallback(() => isDirty && !isSubmitting, [isDirty, isSubmitting])
+  );
+
+  // blockerがブロック状態の場合、確認ダイアログを表示
+  useEffect(() => {
+    if (blocker.state === 'blocked') {
+      const shouldProceed = confirm('入力内容が破棄されます。よろしいですか？');
+      if (shouldProceed) {
+        blocker.proceed();
+      } else {
+        blocker.reset();
+      }
+    }
+  }, [blocker]);
 
   // マスタデータの読み込み
   useEffect(() => {
@@ -264,10 +328,12 @@ export function ReportFormPage() {
         });
         // 新規作成時は訪問記録のIDを取得してからアップロード
         // 今回は簡略化のため、作成後に編集画面に遷移
+        setIsSubmitted(true);
         void navigate(`/reports/${report.id}/edit`, { replace: true });
         return;
       }
 
+      setIsSubmitted(true);
       void navigate('/reports');
     } catch (err) {
       console.error('保存に失敗しました', err);
@@ -332,6 +398,7 @@ export function ReportFormPage() {
         await submitReport(targetReportId);
       }
 
+      setIsSubmitted(true);
       void navigate('/reports');
     } catch (err) {
       console.error('提出に失敗しました', err);
@@ -340,11 +407,6 @@ export function ReportFormPage() {
 
   // キャンセル
   const handleCancel = () => {
-    if (problem || plan || visits.some((v) => v.customer_id || v.content)) {
-      if (!confirm('入力内容が破棄されます。よろしいですか？')) {
-        return;
-      }
-    }
     void navigate('/reports');
   };
 
