@@ -9,11 +9,14 @@ export default defineConfig({
     // テスト環境
     environment: 'jsdom',
 
+    // ルートディレクトリ
+    root: __dirname,
+
     // グローバルAPI（describe, it, expect等）を自動インポート
     globals: true,
 
     // セットアップファイル
-    setupFiles: ['./src/test/setup.ts'],
+    setupFiles: [path.resolve(__dirname, './src/test/setup.ts')],
 
     // テストファイルのパターン
     include: ['src/**/*.{test,spec}.{ts,tsx}'],

@@ -138,9 +138,10 @@ describe('CustomerListPage', () => {
   });
 
   it('should show status badges correctly', () => {
-    renderCustomerListPage();
+    const { container } = renderCustomerListPage();
 
-    const badges = screen.getAllByText(/有効|無効/);
+    // テーブル内のstatus-badgeクラスを持つ要素のみカウント
+    const badges = container.querySelectorAll('.status-badge');
     expect(badges).toHaveLength(2);
   });
 
