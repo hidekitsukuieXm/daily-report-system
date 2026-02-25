@@ -9,3 +9,4 @@ export * from './visits';
 export * from './attachments';
 export * from './customers';
 export * from './masters';
+export * from './approvals';
