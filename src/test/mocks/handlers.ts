@@ -4,7 +4,7 @@
 
 import { http, HttpResponse } from 'msw';
 
-const BASE_URL = 'https://api.example.com/api/v1';
+const BASE_URL = '/api/v1';
 
 // サンプルデータ
 const mockUser = {
@@ -234,43 +234,69 @@ export const handlers = [
     });
   }),
 
-  // マスタAPI
+  // マスタAPI（認証不要、キャッシュ可能）
+  // キャッシュヘッダー: 1時間キャッシュ可能
   http.get(`${BASE_URL}/positions`, () => {
-    return HttpResponse.json({
-      success: true,
-      data: {
-        items: [
-          { id: 1, name: '担当', level: 1 },
-          { id: 2, name: '課長', level: 2 },
-          { id: 3, name: '部長', level: 3 },
-        ],
+    return HttpResponse.json(
+      {
+        success: true,
+        data: {
+          items: [
+            { id: 1, name: '担当', level: 1 },
+            { id: 2, name: '課長', level: 2 },
+            { id: 3, name: '部長', level: 3 },
+          ],
+        },
       },
-    });
+      {
+        headers: {
+          'Cache-Control': 'public, max-age=3600',
+        },
+      }
+    );
   }),
 
   http.get(`${BASE_URL}/industries`, () => {
-    return HttpResponse.json({
-      success: true,
-      data: {
-        items: [
-          { code: 'manufacturing', name: '製造業' },
-          { code: 'it', name: 'IT・通信' },
-          { code: 'finance', name: '金融・保険' },
-        ],
+    return HttpResponse.json(
+      {
+        success: true,
+        data: {
+          items: [
+            { code: 'manufacturing', name: '製造業' },
+            { code: 'it', name: 'IT・通信' },
+            { code: 'finance', name: '金融・保険' },
+            { code: 'retail', name: '小売・流通' },
+            { code: 'service', name: 'サービス' },
+          ],
+        },
       },
-    });
+      {
+        headers: {
+          'Cache-Control': 'public, max-age=3600',
+        },
+      }
+    );
   }),
 
   http.get(`${BASE_URL}/visit-results`, () => {
-    return HttpResponse.json({
-      success: true,
-      data: {
-        items: [
-          { code: 'negotiating', name: '商談中' },
-          { code: 'closed_won', name: '成約' },
-          { code: 'closed_lost', name: '見送り' },
-        ],
+    return HttpResponse.json(
+      {
+        success: true,
+        data: {
+          items: [
+            { code: 'negotiating', name: '商談中' },
+            { code: 'closed_won', name: '成約' },
+            { code: 'closed_lost', name: '見送り' },
+            { code: 'information_gathering', name: '情報収集' },
+            { code: 'other', name: 'その他' },
+          ],
+        },
       },
-    });
+      {
+        headers: {
+          'Cache-Control': 'public, max-age=3600',
+        },
+      }
+    );
   }),
 ];
