@@ -2,9 +2,19 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [react()],
+  root: __dirname,
+  // 環境変数の設定
+  define: {
+    'import.meta.env.VITE_API_BASE_URL': JSON.stringify(
+      'https://api.example.com/api/v1'
+    ),
+  },
   test: {
     // テスト環境
     environment: 'jsdom',
@@ -12,8 +22,8 @@ export default defineConfig({
     // グローバルAPI（describe, it, expect等）を自動インポート
     globals: true,
 
-    // セットアップファイル
-    setupFiles: ['./src/test/setup.ts'],
+    // セットアップファイル（絶対パスで指定）
+    setupFiles: [path.resolve(__dirname, 'src/test/setup.ts')],
 
     // テストファイルのパターン
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
@@ -56,7 +66,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(__dirname, 'src'),
     },
   },
 });
