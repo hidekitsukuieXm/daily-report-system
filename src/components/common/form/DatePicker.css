@@ -1,0 +1,87 @@
+/**
+ * 日付選択スタイル
+ */
+
+.date-picker-wrapper {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.date-picker-wrapper--full-width {
+  display: flex;
+  width: 100%;
+}
+
+.date-picker {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  color: #333;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  width: 100%;
+}
+
+.date-picker:hover:not(:disabled) {
+  border-color: #999;
+}
+
+.date-picker:focus {
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgb(25 118 210 / 20%);
+}
+
+.date-picker:disabled {
+  background-color: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
+}
+
+/* カレンダーアイコンのスタイル */
+.date-picker::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: opacity(0.6);
+  transition: filter 0.2s;
+}
+
+.date-picker:hover::-webkit-calendar-picker-indicator {
+  filter: opacity(1);
+}
+
+/* サイズバリエーション */
+.date-picker--small {
+  font-size: 0.875rem;
+  padding: 0.375rem 0.5rem;
+}
+
+.date-picker--medium {
+  font-size: 1rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.date-picker--large {
+  font-size: 1.125rem;
+  padding: 0.75rem 1rem;
+}
+
+/* エラー状態 */
+.date-picker--error {
+  border-color: #d32f2f;
+}
+
+.date-picker--error:focus {
+  border-color: #d32f2f;
+  box-shadow: 0 0 0 2px rgb(211 47 47 / 20%);
+}
+
+.date-picker-error-message {
+  color: #d32f2f;
+  font-size: 0.75rem;
+  margin: 0;
+}

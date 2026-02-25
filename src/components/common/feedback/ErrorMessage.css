@@ -1,0 +1,103 @@
+/**
+ * エラーメッセージスタイル
+ */
+
+.error-message {
+  align-items: flex-start;
+  border-radius: 4px;
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.error-message--error {
+  background-color: #ffeaea;
+  border: 1px solid #ffcdd2;
+}
+
+.error-message--warning {
+  background-color: #fff8e1;
+  border: 1px solid #ffecb3;
+}
+
+.error-message--info {
+  background-color: #e3f2fd;
+  border: 1px solid #bbdefb;
+}
+
+.error-message-icon {
+  align-items: center;
+  border-radius: 50%;
+  display: flex;
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  height: 24px;
+  justify-content: center;
+  width: 24px;
+}
+
+.error-message--error .error-message-icon {
+  background-color: #d32f2f;
+  color: #fff;
+}
+
+.error-message--warning .error-message-icon {
+  background-color: #f57c00;
+  color: #fff;
+}
+
+.error-message--info .error-message-icon {
+  background-color: #1976d2;
+  color: #fff;
+}
+
+.error-message-content {
+  flex: 1;
+}
+
+.error-message-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+}
+
+.error-message--error .error-message-title {
+  color: #c62828;
+}
+
+.error-message--warning .error-message-title {
+  color: #e65100;
+}
+
+.error-message--info .error-message-title {
+  color: #1565c0;
+}
+
+.error-message-text {
+  color: #333;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.error-message-retry {
+  background-color: transparent;
+  border: none;
+  color: #1976d2;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.error-message-retry:hover {
+  color: #1565c0;
+}
+
+.error-message-retry:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}

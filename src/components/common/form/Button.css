@@ -1,0 +1,171 @@
+/**
+ * ボタンスタイル
+ */
+
+.button {
+  align-items: center;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: inherit;
+  font-weight: 500;
+  gap: 0.5rem;
+  justify-content: center;
+  line-height: 1;
+  outline: none;
+  position: relative;
+  text-decoration: none;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s,
+    box-shadow 0.2s;
+}
+
+.button:focus-visible {
+  box-shadow: 0 0 0 2px rgb(25 118 210 / 40%);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* サイズバリエーション */
+.button--small {
+  font-size: 0.875rem;
+  min-height: 32px;
+  padding: 0.375rem 0.75rem;
+}
+
+.button--medium {
+  font-size: 1rem;
+  min-height: 40px;
+  padding: 0.5rem 1rem;
+}
+
+.button--large {
+  font-size: 1.125rem;
+  min-height: 48px;
+  padding: 0.75rem 1.5rem;
+}
+
+/* バリアント: Primary */
+.button--primary {
+  background-color: #1976d2;
+  color: #fff;
+}
+
+.button--primary:hover:not(:disabled) {
+  background-color: #1565c0;
+}
+
+.button--primary:active:not(:disabled) {
+  background-color: #0d47a1;
+}
+
+/* バリアント: Secondary */
+.button--secondary {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.button--secondary:hover:not(:disabled) {
+  background-color: #e0e0e0;
+}
+
+.button--secondary:active:not(:disabled) {
+  background-color: #bdbdbd;
+}
+
+/* バリアント: Outline */
+.button--outline {
+  background-color: transparent;
+  border: 1px solid #1976d2;
+  color: #1976d2;
+}
+
+.button--outline:hover:not(:disabled) {
+  background-color: rgb(25 118 210 / 8%);
+}
+
+.button--outline:active:not(:disabled) {
+  background-color: rgb(25 118 210 / 15%);
+}
+
+/* バリアント: Text */
+.button--text {
+  background-color: transparent;
+  color: #1976d2;
+}
+
+.button--text:hover:not(:disabled) {
+  background-color: rgb(25 118 210 / 8%);
+}
+
+.button--text:active:not(:disabled) {
+  background-color: rgb(25 118 210 / 15%);
+}
+
+/* バリアント: Danger */
+.button--danger {
+  background-color: #d32f2f;
+  color: #fff;
+}
+
+.button--danger:hover:not(:disabled) {
+  background-color: #c62828;
+}
+
+.button--danger:active:not(:disabled) {
+  background-color: #b71c1c;
+}
+
+.button--danger:focus-visible {
+  box-shadow: 0 0 0 2px rgb(211 47 47 / 40%);
+}
+
+/* フルワイド */
+.button--full-width {
+  width: 100%;
+}
+
+/* アイコン */
+.button-icon {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+}
+
+.button-label {
+  flex-shrink: 0;
+}
+
+/* ローディング状態 */
+.button--loading .button-label {
+  visibility: hidden;
+}
+
+.button-spinner {
+  align-items: center;
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  position: absolute;
+}
+
+.button-spinner-inner {
+  animation: button-spin 0.8s linear infinite;
+  border: 2px solid currentcolor;
+  border-radius: 50%;
+  border-top-color: transparent;
+  height: 1em;
+  width: 1em;
+}
+
+@keyframes button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,106 @@
+/**
+ * バッジスタイル
+ */
+
+.badge {
+  align-items: center;
+  border-radius: 4px;
+  display: inline-flex;
+  font-weight: 500;
+  justify-content: center;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* サイズバリエーション */
+.badge--small {
+  font-size: 0.625rem;
+  padding: 0.25rem 0.375rem;
+}
+
+.badge--medium {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.badge--large {
+  font-size: 0.875rem;
+  padding: 0.375rem 0.75rem;
+}
+
+/* 丸み */
+.badge--rounded {
+  border-radius: 9999px;
+}
+
+/* バリアント: default */
+.badge--default {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.badge--default.badge--outline {
+  background-color: transparent;
+  border: 1px solid #ccc;
+  color: #666;
+}
+
+/* バリアント: primary */
+.badge--primary {
+  background-color: #1976d2;
+  color: #fff;
+}
+
+.badge--primary.badge--outline {
+  background-color: transparent;
+  border: 1px solid #1976d2;
+  color: #1976d2;
+}
+
+/* バリアント: success */
+.badge--success {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+.badge--success.badge--outline {
+  background-color: transparent;
+  border: 1px solid #4caf50;
+  color: #4caf50;
+}
+
+/* バリアント: warning */
+.badge--warning {
+  background-color: #ff9800;
+  color: #fff;
+}
+
+.badge--warning.badge--outline {
+  background-color: transparent;
+  border: 1px solid #ff9800;
+  color: #ff9800;
+}
+
+/* バリアント: danger */
+.badge--danger {
+  background-color: #d32f2f;
+  color: #fff;
+}
+
+.badge--danger.badge--outline {
+  background-color: transparent;
+  border: 1px solid #d32f2f;
+  color: #d32f2f;
+}
+
+/* バリアント: info */
+.badge--info {
+  background-color: #0288d1;
+  color: #fff;
+}
+
+.badge--info.badge--outline {
+  background-color: transparent;
+  border: 1px solid #0288d1;
+  color: #0288d1;
+}

@@ -1,0 +1,69 @@
+/**
+ * フォームフィールドスタイル
+ */
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-field--horizontal {
+  align-items: flex-start;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.form-field-label {
+  color: #333;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.form-field--horizontal .form-field-label {
+  flex-shrink: 0;
+  min-width: 120px;
+  padding-top: 0.5rem;
+}
+
+.form-field-required {
+  color: #d32f2f;
+  margin-left: 0.25rem;
+}
+
+.form-field-control {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.form-field-help {
+  color: #666;
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+.form-field-error {
+  color: #d32f2f;
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+/* エラー状態のラベル */
+.form-field--error .form-field-label {
+  color: #d32f2f;
+}
+
+/* レスポンシブ対応 */
+@media (width <= 768px) {
+  .form-field--horizontal {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-field--horizontal .form-field-label {
+    min-width: auto;
+    padding-top: 0;
+  }
+}

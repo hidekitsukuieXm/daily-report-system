@@ -1,0 +1,98 @@
+/**
+ * アプリケーションレイアウトスタイル
+ */
+
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-layout-body {
+  display: flex;
+  flex: 1;
+}
+
+.app-layout-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: calc(100vh - 60px);
+  transition: margin-left 0.3s ease;
+}
+
+.app-layout-main--with-sidebar {
+  margin-left: 0;
+}
+
+.app-layout-main--sidebar-collapsed {
+  margin-left: 0;
+}
+
+.app-layout-content {
+  flex: 1;
+  padding: 1.5rem;
+}
+
+.app-layout-overlay {
+  background-color: rgb(0 0 0 / 50%);
+  bottom: 0;
+  cursor: pointer;
+  display: none;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 150;
+}
+
+.app-layout-mobile-menu-button {
+  align-items: center;
+  background-color: #1976d2;
+  border: none;
+  border-radius: 50%;
+  bottom: 1rem;
+  box-shadow: 0 4px 8px rgb(0 0 0 / 20%);
+  color: #fff;
+  cursor: pointer;
+  display: none;
+  font-size: 1.5rem;
+  height: 56px;
+  justify-content: center;
+  position: fixed;
+  right: 1rem;
+  width: 56px;
+  z-index: 250;
+}
+
+.app-layout-mobile-menu-button:hover {
+  background-color: #1565c0;
+}
+
+.app-layout-mobile-menu-button:focus {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.app-layout-mobile-menu-icon {
+  line-height: 1;
+}
+
+/* レスポンシブ対応 */
+@media (width <= 768px) {
+  .app-layout-main {
+    margin-left: 0;
+  }
+
+  .app-layout-content {
+    padding: 1rem;
+  }
+
+  .app-layout-overlay {
+    display: block;
+  }
+
+  .app-layout-mobile-menu-button {
+    display: flex;
+  }
+}

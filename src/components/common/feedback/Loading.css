@@ -1,0 +1,94 @@
+/**
+ * ローディングスタイル
+ */
+
+.loading {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.loading-spinner {
+  animation: loading-spin 1s linear infinite;
+  border: 3px solid #e0e0e0;
+  border-radius: 50%;
+  border-top-color: #1976d2;
+}
+
+/* サイズバリエーション */
+.loading--small .loading-spinner {
+  border-width: 2px;
+  height: 20px;
+  width: 20px;
+}
+
+.loading--medium .loading-spinner {
+  border-width: 3px;
+  height: 32px;
+  width: 32px;
+}
+
+.loading--large .loading-spinner {
+  border-width: 4px;
+  height: 48px;
+  width: 48px;
+}
+
+.loading-text {
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.loading--large .loading-text {
+  font-size: 1rem;
+}
+
+/* フルスクリーン */
+.loading-fullscreen {
+  align-items: center;
+  background-color: #fff;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 9999;
+}
+
+/* オーバーレイ */
+.loading-overlay {
+  align-items: center;
+  background-color: rgb(255 255 255 / 80%);
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 100;
+}
+
+/* スクリーンリーダー用 */
+.sr-only {
+  clip: rect(0 0 0 0);
+  border: 0;
+  clip-path: inset(50%);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+@keyframes loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

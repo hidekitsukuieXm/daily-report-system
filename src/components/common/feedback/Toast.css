@@ -1,0 +1,207 @@
+/**
+ * トーストスタイル
+ */
+
+.toast {
+  align-items: center;
+  animation: toast-slide-in 0.3s ease-out;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
+  display: flex;
+  gap: 0.75rem;
+  max-width: 400px;
+  min-width: 280px;
+  padding: 0.75rem 1rem;
+  position: fixed;
+  z-index: 10000;
+}
+
+/* 位置 */
+.toast--top {
+  left: 50%;
+  top: 1rem;
+  transform: translateX(-50%);
+}
+
+.toast--bottom {
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.toast--top-left {
+  left: 1rem;
+  top: 1rem;
+}
+
+.toast--top-right {
+  right: 1rem;
+  top: 1rem;
+}
+
+.toast--bottom-left {
+  bottom: 1rem;
+  left: 1rem;
+}
+
+.toast--bottom-right {
+  bottom: 1rem;
+  right: 1rem;
+}
+
+/* タイプ別スタイル */
+.toast--success {
+  background-color: #e8f5e9;
+  border-left: 4px solid #4caf50;
+}
+
+.toast--error {
+  background-color: #ffeaea;
+  border-left: 4px solid #d32f2f;
+}
+
+.toast--warning {
+  background-color: #fff8e1;
+  border-left: 4px solid #f57c00;
+}
+
+.toast--info {
+  background-color: #e3f2fd;
+  border-left: 4px solid #1976d2;
+}
+
+.toast-icon {
+  align-items: center;
+  border-radius: 50%;
+  display: flex;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  height: 20px;
+  justify-content: center;
+  width: 20px;
+}
+
+.toast--success .toast-icon {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+.toast--error .toast-icon {
+  background-color: #d32f2f;
+  color: #fff;
+}
+
+.toast--warning .toast-icon {
+  background-color: #f57c00;
+  color: #fff;
+}
+
+.toast--info .toast-icon {
+  background-color: #1976d2;
+  color: #fff;
+}
+
+.toast-message {
+  color: #333;
+  flex: 1;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.toast-close {
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  border-radius: 4px;
+  color: #666;
+  cursor: pointer;
+  display: flex;
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  height: 24px;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+  transition: background-color 0.2s;
+  width: 24px;
+}
+
+.toast-close:hover {
+  background-color: rgb(0 0 0 / 10%);
+}
+
+.toast-close:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+
+/* アニメーション */
+@keyframes toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.toast--top-left,
+.toast--bottom-left {
+  animation-name: toast-slide-in-left;
+}
+
+.toast--top-right,
+.toast--bottom-right {
+  animation-name: toast-slide-in-right;
+}
+
+@keyframes toast-slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toast-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* レスポンシブ対応 */
+@media (width <= 480px) {
+  .toast {
+    left: 1rem;
+    max-width: calc(100% - 2rem);
+    min-width: auto;
+    right: 1rem;
+    transform: none;
+  }
+
+  .toast--top,
+  .toast--top-left,
+  .toast--top-right {
+    top: 1rem;
+  }
+
+  .toast--bottom,
+  .toast--bottom-left,
+  .toast--bottom-right {
+    bottom: 1rem;
+  }
+}

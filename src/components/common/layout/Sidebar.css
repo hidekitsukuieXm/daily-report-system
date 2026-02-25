@@ -1,0 +1,140 @@
+/**
+ * サイドバースタイル
+ */
+
+.sidebar {
+  background-color: #f5f5f5;
+  border-right: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+  position: sticky;
+  top: 60px;
+  transition: width 0.3s ease;
+  width: 240px;
+}
+
+.sidebar--collapsed {
+  width: 60px;
+}
+
+.sidebar-toggle {
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid #e0e0e0;
+  cursor: pointer;
+  display: flex;
+  height: 48px;
+  justify-content: center;
+  padding: 0;
+  width: 100%;
+}
+
+.sidebar-toggle:hover {
+  background-color: #e0e0e0;
+}
+
+.sidebar-toggle:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: -2px;
+}
+
+.sidebar-toggle-icon {
+  color: #666;
+  font-size: 1rem;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+}
+
+.sidebar-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar-menu-item {
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar-link {
+  align-items: center;
+  color: #333;
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.sidebar-link:hover {
+  background-color: #e0e0e0;
+}
+
+.sidebar-link:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: -2px;
+}
+
+.sidebar-link--active {
+  background-color: #e3f2fd;
+  border-left: 3px solid #1976d2;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.sidebar-link-icon {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  height: 24px;
+  justify-content: center;
+  width: 24px;
+}
+
+.sidebar-link-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 折りたたみ時 */
+.sidebar--collapsed .sidebar-link {
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+.sidebar--collapsed .sidebar-link--active {
+  border-left: none;
+  border-bottom: 3px solid #1976d2;
+}
+
+/* レスポンシブ対応 */
+@media (width <= 768px) {
+  .sidebar {
+    background-color: #fff;
+    box-shadow: 2px 0 8px rgb(0 0 0 / 10%);
+    height: 100vh;
+    left: 0;
+    position: fixed;
+    top: 0;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    width: 280px;
+    z-index: 200;
+  }
+
+  .sidebar--open {
+    transform: translateX(0);
+  }
+
+  .sidebar--collapsed {
+    width: 280px;
+  }
+}

@@ -1,0 +1,117 @@
+/**
+ * カードスタイル
+ */
+
+.card {
+  background-color: #fff;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 影のバリエーション */
+.card--elevation-none {
+  border: 1px solid #e0e0e0;
+  box-shadow: none;
+}
+
+.card--elevation-low {
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+}
+
+.card--elevation-medium {
+  box-shadow: 0 4px 8px rgb(0 0 0 / 12%);
+}
+
+.card--elevation-high {
+  box-shadow: 0 8px 16px rgb(0 0 0 / 15%);
+}
+
+/* クリック可能 */
+.card--clickable {
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.card--clickable:hover {
+  box-shadow: 0 6px 12px rgb(0 0 0 / 15%);
+  transform: translateY(-2px);
+}
+
+.card--clickable:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+
+.card--clickable:active {
+  transform: translateY(0);
+}
+
+.card-header {
+  align-items: flex-start;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+}
+
+.card-header-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-title {
+  color: #333;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.card-subtitle {
+  color: #666;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  margin: 0.25rem 0 0;
+}
+
+.card-header-action {
+  flex-shrink: 0;
+}
+
+.card-body {
+  flex: 1;
+  padding: 1.5rem;
+}
+
+.card-body--no-padding {
+  padding: 0;
+}
+
+.card-footer {
+  border-top: 1px solid #e0e0e0;
+  padding: 1rem 1.5rem;
+}
+
+/* レスポンシブ対応 */
+@media (width <= 768px) {
+  .card-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  .card-footer {
+    padding: 0.75rem 1rem;
+  }
+
+  .card-title {
+    font-size: 1rem;
+  }
+}

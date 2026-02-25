@@ -1,0 +1,105 @@
+/**
+ * ヘッダースタイル
+ */
+
+.header {
+  align-items: center;
+  background-color: #1976d2;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+  display: flex;
+  height: 60px;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-left {
+  align-items: center;
+  display: flex;
+}
+
+.header-logo {
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.header-logo:hover {
+  opacity: 0.9;
+}
+
+.header-logo:focus {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.header-right {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+}
+
+.user-info {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.user-name {
+  color: #fff;
+  font-weight: 500;
+}
+
+.user-position {
+  background-color: rgb(255 255 255 / 20%);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.logout-button {
+  background-color: #fff;
+  border: none;
+  border-radius: 4px;
+  color: #1976d2;
+  cursor: pointer;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.2s;
+}
+
+.logout-button:hover {
+  background-color: #e3f2fd;
+}
+
+.logout-button:focus {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* レスポンシブ対応 */
+@media (width <= 768px) {
+  .header {
+    padding: 0 1rem;
+  }
+
+  .header-logo {
+    font-size: 1rem;
+  }
+
+  .user-info {
+    gap: 0.5rem;
+  }
+
+  .user-name {
+    display: none;
+  }
+
+  .logout-button {
+    padding: 0.375rem 0.75rem;
+  }
+}
