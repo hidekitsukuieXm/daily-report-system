@@ -5,7 +5,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import { AuthGuard, GuestGuard } from '@/components/auth';
-import { LoginPage, DashboardPage } from '@/pages';
+import { LoginPage, DashboardPage, CustomerFormPage } from '@/pages';
 
 export const router = createBrowserRouter([
   {
@@ -25,6 +25,22 @@ export const router = createBrowserRouter([
     element: (
       <AuthGuard>
         <DashboardPage />
+      </AuthGuard>
+    ),
+  },
+  {
+    path: '/customers/new',
+    element: (
+      <AuthGuard>
+        <CustomerFormPage />
+      </AuthGuard>
+    ),
+  },
+  {
+    path: '/customers/:id/edit',
+    element: (
+      <AuthGuard>
+        <CustomerFormPage />
       </AuthGuard>
     ),
   },
