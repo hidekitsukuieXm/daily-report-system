@@ -3,10 +3,10 @@
  * SCR-011, SCR-012
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useBlocker } from 'react-router-dom';
 
 import {
   deleteAttachment,
@@ -16,10 +16,13 @@ import {
 import { getCustomers } from '@/lib/api/customers';
 import { getVisitResults } from '@/lib/api/masters';
 import type { VisitResultMaster } from '@/lib/api/masters';
-import type { VisitResult, Customer } from '@/schemas/data';
+import type { VisitResult, Customer, ReportStatus } from '@/schemas/data';
 import { useReportStore } from '@/stores/reports';
 
 import './ReportFormPage.css';
+
+// 編集可能なステータス
+const EDITABLE_STATUSES: ReportStatus[] = ['draft', 'rejected'];
 
 type VisitFormData = {
   id?: number;
@@ -33,6 +36,14 @@ type VisitFormData = {
     fileSize: number;
   }[];
   newFiles: File[];
+  isNew?: boolean;
+};
+
+type FormData = {
+  reportDate: string;
+  problem: string;
+  plan: string;
+  visits: VisitFormData[];
 };
 
 export function ReportFormPage() {
@@ -50,6 +61,9 @@ export function ReportFormPage() {
     createReport,
     updateReport,
     submitReport,
+    addVisit,
+    updateVisit,
+    deleteVisit,
     clearCurrentReport,
     clearError,
   } = useReportStore();
@@ -71,6 +85,112 @@ export function ReportFormPage() {
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
+
+  // 編集不可エラー
+  const [editError, setEditError] = useState<string | null>(null);
+
+  // 変更検知用
+  const initialDataRef = useRef<FormData | null>(null);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  // 変更を検知する関数
+  const checkChanges = useCallback(() => {
+    if (!initialDataRef.current) {
+      setHasChanges(false);
+      return;
+    }
+
+    const initial = initialDataRef.current;
+    const currentData: FormData = {
+      reportDate,
+      problem,
+      plan,
+      visits,
+    };
+
+    // 基本フィールドの比較
+    if (
+      initial.reportDate !== currentData.reportDate ||
+      initial.problem !== currentData.problem ||
+      initial.plan !== currentData.plan
+    ) {
+      setHasChanges(true);
+      return;
+    }
+
+    // 訪問記録の比較（簡易比較）
+    if (initial.visits.length !== currentData.visits.length) {
+      setHasChanges(true);
+      return;
+    }
+
+    for (let i = 0; i < initial.visits.length; i++) {
+      const initVisit = initial.visits[i];
+      const currVisit = currentData.visits[i];
+      if (!initVisit || !currVisit) {
+        setHasChanges(true);
+        return;
+      }
+      if (
+        initVisit.customer_id !== currVisit.customer_id ||
+        initVisit.visit_time !== currVisit.visit_time ||
+        initVisit.content !== currVisit.content ||
+        initVisit.result !== currVisit.result ||
+        currVisit.newFiles.length > 0
+      ) {
+        setHasChanges(true);
+        return;
+      }
+    }
+
+    // 新規訪問記録があるかチェック
+    if (visits.some((v) => v.isNew)) {
+      setHasChanges(true);
+      return;
+    }
+
+    setHasChanges(false);
+  }, [reportDate, problem, plan, visits]);
+
+  // フォームデータが変更されたら変更検知を実行
+  useEffect(() => {
+    checkChanges();
+  }, [checkChanges]);
+
+  // ナビゲーションブロッカー
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      hasChanges && currentLocation.pathname !== nextLocation.pathname
+  );
+
+  // ブロッカーダイアログの処理
+  useEffect(() => {
+    if (blocker.state === 'blocked') {
+      const confirmed = window.confirm(
+        '未保存の変更があります。このページを離れますか？'
+      );
+      if (confirmed) {
+        blocker.proceed();
+      } else {
+        blocker.reset();
+      }
+    }
+  }, [blocker]);
+
+  // beforeunloadイベントハンドラ
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasChanges]);
 
   // マスタデータの読み込み
   useEffect(() => {
@@ -102,33 +222,65 @@ export function ReportFormPage() {
   // 編集データをフォームに反映
   useEffect(() => {
     if (isEdit && currentReport) {
+      // 編集可能かチェック
+      if (!EDITABLE_STATUSES.includes(currentReport.status)) {
+        setEditError(
+          'この日報は編集できません。下書きまたは差戻し状態の日報のみ編集可能です。'
+        );
+        return;
+      }
+
+      setEditError(null);
+
       const dateStr =
         typeof currentReport.reportDate === 'string'
           ? currentReport.reportDate
           : (new Date(currentReport.reportDate).toISOString().split('T')[0] ??
             '');
+      const problemValue = currentReport.problem ?? '';
+      const planValue = currentReport.plan ?? '';
+      const visitsValue = currentReport.visitRecords.map((v) => ({
+        id: v.id,
+        customer_id: v.customerId,
+        visit_time: v.visitTime
+          ? new Date(v.visitTime).toTimeString().slice(0, 5)
+          : '',
+        content: v.content,
+        result: v.result ?? ('' as VisitResult | ''),
+        attachments: v.attachments.map((a) => ({
+          id: a.id,
+          fileName: a.fileName,
+          fileSize: a.fileSize,
+        })),
+        newFiles: [],
+      }));
+
       setReportDate(dateStr);
-      setProblem(currentReport.problem ?? '');
-      setPlan(currentReport.plan ?? '');
-      setVisits(
-        currentReport.visitRecords.map((v) => ({
-          id: v.id,
-          customer_id: v.customerId,
-          visit_time: v.visitTime
-            ? new Date(v.visitTime).toTimeString().slice(0, 5)
-            : '',
-          content: v.content,
-          result: v.result ?? '',
-          attachments: v.attachments.map((a) => ({
-            id: a.id,
-            fileName: a.fileName,
-            fileSize: a.fileSize,
-          })),
-          newFiles: [],
-        }))
-      );
+      setProblem(problemValue);
+      setPlan(planValue);
+      setVisits(visitsValue);
+
+      // 初期データを保存（変更検知用）
+      initialDataRef.current = {
+        reportDate: dateStr,
+        problem: problemValue,
+        plan: planValue,
+        visits: visitsValue.map((v) => ({ ...v, newFiles: [] })),
+      };
     }
   }, [isEdit, currentReport]);
+
+  // 新規作成時の初期データを設定
+  useEffect(() => {
+    if (!isEdit && !initialDataRef.current) {
+      initialDataRef.current = {
+        reportDate,
+        problem: '',
+        plan: '',
+        visits: [],
+      };
+    }
+  }, [isEdit, reportDate]);
 
   // 訪問記録を追加
   const handleAddVisit = () => {
@@ -141,12 +293,28 @@ export function ReportFormPage() {
         result: '' as VisitResult | '',
         attachments: [],
         newFiles: [],
+        isNew: true,
       },
     ]);
   };
 
   // 訪問記録を削除
-  const handleRemoveVisit = (index: number) => {
+  const handleRemoveVisit = async (index: number) => {
+    const visit = visits[index];
+    if (!visit) return;
+
+    // 既存の訪問記録（APIに保存済み）の場合はAPIで削除
+    if (visit.id && !visit.isNew) {
+      if (!confirm('この訪問記録を削除しますか？')) return;
+      try {
+        await deleteVisit(visit.id);
+      } catch (err) {
+        console.error('訪問記録の削除に失敗しました', err);
+        alert('訪問記録の削除に失敗しました');
+        return;
+      }
+    }
+
     setVisits(visits.filter((_, i) => i !== index));
   };
 
@@ -240,44 +408,31 @@ export function ReportFormPage() {
     return Object.keys(errors).length === 0;
   };
 
-  // 下書き保存
-  const handleSaveDraft = async () => {
-    clearError();
-    if (!validate()) return;
-
-    try {
-      if (isEdit && reportId) {
-        await updateReport(reportId, { problem, plan });
-        // 訪問記録の添付ファイルをアップロード
-        await uploadNewFiles();
-      } else {
-        const report = await createReport({
-          report_date: reportDate,
-          problem,
-          plan,
-          visits: visits.map((v) => ({
-            customer_id: v.customer_id,
-            visit_time: v.visit_time || undefined,
-            content: v.content,
-            result: v.result || undefined,
-          })),
-        });
-        // 新規作成時は訪問記録のIDを取得してからアップロード
-        // 今回は簡略化のため、作成後に編集画面に遷移
-        void navigate(`/reports/${report.id}/edit`, { replace: true });
-        return;
-      }
-
-      void navigate('/reports');
-    } catch (err) {
-      console.error('保存に失敗しました', err);
-    }
-  };
-
-  // 新しいファイルをアップロード
-  const uploadNewFiles = async () => {
+  // 訪問記録を保存（新規作成/更新）
+  const saveVisits = async (targetReportId: number) => {
     for (const visit of visits) {
-      if (visit.id && visit.newFiles.length > 0) {
+      const visitData = {
+        customer_id: visit.customer_id,
+        visit_time: visit.visit_time || undefined,
+        content: visit.content,
+        result: visit.result || undefined,
+      };
+
+      if (visit.isNew) {
+        // 新規訪問記録を追加
+        const newVisit = await addVisit(targetReportId, visitData);
+        // 新しいファイルをアップロード
+        for (const file of visit.newFiles) {
+          try {
+            await uploadAttachment(newVisit.id, file);
+          } catch (err) {
+            console.error('ファイルのアップロードに失敗しました', err);
+          }
+        }
+      } else if (visit.id) {
+        // 既存の訪問記録を更新
+        await updateVisit(visit.id, visitData);
+        // 新しいファイルをアップロード
         for (const file of visit.newFiles) {
           try {
             await uploadAttachment(visit.id, file);
@@ -286,6 +441,42 @@ export function ReportFormPage() {
           }
         }
       }
+    }
+  };
+
+  // 下書き保存
+  const handleSaveDraft = async () => {
+    clearError();
+    if (!validate()) return;
+
+    try {
+      if (isEdit && reportId) {
+        await updateReport(reportId, { problem, plan });
+        await saveVisits(reportId);
+      } else {
+        const report = await createReport({
+          report_date: reportDate,
+          problem,
+          plan,
+          visits: visits
+            .filter((v) => !v.isNew || v.customer_id)
+            .map((v) => ({
+              customer_id: v.customer_id,
+              visit_time: v.visit_time || undefined,
+              content: v.content,
+              result: v.result || undefined,
+            })),
+        });
+        // 新規作成時は編集画面に遷移
+        void navigate(`/reports/${report.id}/edit`, { replace: true });
+        return;
+      }
+
+      // 変更フラグをリセット
+      setHasChanges(false);
+      void navigate('/reports');
+    } catch (err) {
+      console.error('保存に失敗しました', err);
     }
   };
 
@@ -303,7 +494,12 @@ export function ReportFormPage() {
       return;
     }
 
-    if (!confirm('日報を提出しますか？提出後は編集できません。')) {
+    const isRejected = currentReport?.status === 'rejected';
+    const confirmMessage = isRejected
+      ? '日報を再提出しますか？'
+      : '日報を提出しますか？提出後は編集できません。';
+
+    if (!confirm(confirmMessage)) {
       return;
     }
 
@@ -312,7 +508,7 @@ export function ReportFormPage() {
 
       if (isEdit && reportId) {
         await updateReport(reportId, { problem, plan });
-        await uploadNewFiles();
+        await saveVisits(reportId);
       } else {
         const report = await createReport({
           report_date: reportDate,
@@ -332,6 +528,8 @@ export function ReportFormPage() {
         await submitReport(targetReportId);
       }
 
+      // 変更フラグをリセット
+      setHasChanges(false);
       void navigate('/reports');
     } catch (err) {
       console.error('提出に失敗しました', err);
@@ -340,17 +538,45 @@ export function ReportFormPage() {
 
   // キャンセル
   const handleCancel = () => {
-    if (problem || plan || visits.some((v) => v.customer_id || v.content)) {
-      if (!confirm('入力内容が破棄されます。よろしいですか？')) {
+    if (hasChanges) {
+      if (!confirm('未保存の変更があります。破棄しますか？')) {
         return;
       }
     }
+    setHasChanges(false);
     void navigate('/reports');
+  };
+
+  // 戻る（編集不可の場合）
+  const handleGoBack = () => {
+    if (reportId) {
+      void navigate(`/reports/${reportId}`);
+    } else {
+      void navigate('/reports');
+    }
   };
 
   if (isEdit && isLoading) {
     return <div className="loading">読み込み中...</div>;
   }
+
+  // 編集不可エラー表示
+  if (editError) {
+    return (
+      <div className="report-form-page">
+        <div className="error-container">
+          <div className="error-message" role="alert">
+            {editError}
+          </div>
+          <button type="button" className="back-button" onClick={handleGoBack}>
+            戻る
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const isRejected = currentReport?.status === 'rejected';
 
   return (
     <div className="report-form-page">
@@ -362,11 +588,17 @@ export function ReportFormPage() {
         </div>
       )}
 
-      {isEdit && currentReport?.status === 'rejected' && (
+      {hasChanges && (
+        <div className="unsaved-changes-notice">
+          未保存の変更があります
+        </div>
+      )}
+
+      {isEdit && isRejected && (
         <div className="reject-notice">
           <strong>差戻し理由:</strong>
           <p>
-            {currentReport.approvalHistories
+            {currentReport?.approvalHistories
               .filter((h) => h.action === 'rejected')
               .map((h) => h.comment)
               .join('\n') || '理由なし'}
@@ -415,13 +647,16 @@ export function ReportFormPage() {
             <p className="empty-visits">訪問記録がありません</p>
           ) : (
             visits.map((visit, index) => (
-              <div key={index} className="visit-card">
+              <div key={visit.id ?? `new-${index}`} className="visit-card">
                 <div className="visit-header">
-                  <span className="visit-number">No.{index + 1}</span>
+                  <span className="visit-number">
+                    No.{index + 1}
+                    {visit.isNew && <span className="new-badge">新規</span>}
+                  </span>
                   <button
                     type="button"
                     className="remove-button"
-                    onClick={() => handleRemoveVisit(index)}
+                    onClick={() => void handleRemoveVisit(index)}
                   >
                     削除
                   </button>
@@ -602,7 +837,9 @@ export function ReportFormPage() {
             className="submit-button"
             disabled={isSubmitting}
           >
-            {isSubmitting ? '送信中...' : '提出'}
+            {isSubmitting && '送信中...'}
+            {!isSubmitting && isRejected && '再提出'}
+            {!isSubmitting && !isRejected && '提出'}
           </button>
           <button
             type="button"
