@@ -1,8 +1,22 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
+// デフォルトパスワード（開発環境用）
+const DEFAULT_PASSWORD = 'password123';
+
+// パスワードハッシュ化関数
+async function hashPassword(password: string): Promise<string> {
+  const salt = await bcrypt.genSalt(10);
+  return bcrypt.hash(password, salt);
+}
+
 async function main() {
+  // パスワードをハッシュ化
+  const hashedPassword = await hashPassword(DEFAULT_PASSWORD);
+  console.log('Password hash generated for default password');
+
   // 役職マスタの作成
   const positions = await Promise.all([
     prisma.position.upsert({
@@ -32,7 +46,7 @@ async function main() {
     create: {
       name: '田中 部長',
       email: 'director@example.com',
-      password: '$2b$10$dummy.hashed.password.for.seeding', // 実際はハッシュ化が必要
+      password: hashedPassword,
       positionId: 3,
       isActive: true,
     },
@@ -45,7 +59,7 @@ async function main() {
     create: {
       name: '鈴木 課長',
       email: 'manager@example.com',
-      password: '$2b$10$dummy.hashed.password.for.seeding',
+      password: hashedPassword,
       positionId: 2,
       directorId: director.id,
       isActive: true,
@@ -59,7 +73,7 @@ async function main() {
     create: {
       name: '山田 太郎',
       email: 'yamada@example.com',
-      password: '$2b$10$dummy.hashed.password.for.seeding',
+      password: hashedPassword,
       positionId: 1,
       managerId: manager.id,
       directorId: director.id,
@@ -73,7 +87,7 @@ async function main() {
     create: {
       name: '佐藤 花子',
       email: 'sato@example.com',
-      password: '$2b$10$dummy.hashed.password.for.seeding',
+      password: hashedPassword,
       positionId: 1,
       managerId: manager.id,
       directorId: director.id,
