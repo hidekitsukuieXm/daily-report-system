@@ -7,6 +7,7 @@ import type { ReactElement, ReactNode } from 'react';
 
 import { render, type RenderOptions } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 
 /**
  * プロバイダーラッパー
@@ -17,15 +18,7 @@ type AllTheProvidersProps = {
 };
 
 function AllTheProviders({ children }: AllTheProvidersProps) {
-  return (
-    // 将来的にはここにプロバイダーを追加
-    // <QueryClientProvider client={queryClient}>
-    //   <AuthProvider>
-    //     {children}
-    //   </AuthProvider>
-    // </QueryClientProvider>
-    <>{children}</>
-  );
+  return <MemoryRouter>{children}</MemoryRouter>;
 }
 
 /**

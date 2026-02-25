@@ -13,7 +13,10 @@ export default defineConfig({
     globals: true,
 
     // セットアップファイル
-    setupFiles: ['./src/test/setup.ts'],
+    setupFiles: [path.resolve(__dirname, './src/test/setup.ts')],
+
+    // ルートディレクトリを明示的に設定
+    root: __dirname,
 
     // テストファイルのパターン
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
