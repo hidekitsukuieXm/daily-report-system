@@ -50,9 +50,9 @@ export function AuthGuard({ children, requiredLevel }: AuthGuardProps) {
   if (requiredLevel !== undefined && user) {
     if (user.position.level < requiredLevel) {
       return (
-        <div className="auth-forbidden">
-          <h1>アクセス権限がありません</h1>
-          <p>このページを表示するための権限がありません。</p>
+        <div className="flex min-h-[50vh] flex-col items-center justify-center">
+          <h1 className="text-2xl font-bold text-destructive">アクセス権限がありません</h1>
+          <p className="mt-2 text-muted-foreground">このページを表示するための権限がありません。</p>
         </div>
       );
     }
@@ -63,13 +63,55 @@ export function AuthGuard({ children, requiredLevel }: AuthGuardProps) {
 
 /**
  * 未認証のみアクセス可能なガード
- * ログイン済みユーザーをダッシュボードにリダイレクト
+ * ログイン済みユーザーを元のURLまたはダッシュボードにリダイレクト
  */
 export function GuestGuard({ children }: { children: ReactNode }) {
+  const location = useLocation();
   const { isAuthenticated } = useAuthStore();
 
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+    // ログイン前のURLがあればそこにリダイレクト、なければダッシュボードへ
+    const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? '/dashboard';
+    return <Navigate to={from} replace />;
+  }
+
+  return <>{children}</>;
+}
+
+/** 役職レベル定数 */
+export const PositionLevel = {
+  STAFF: 1,      // 担当
+  MANAGER: 2,    // 課長
+  DIRECTOR: 3,   // 部長
+} as const;
+
+type RoleGuardProps = {
+  children: ReactNode;
+  requiredLevel: number;
+  fallback?: ReactNode;
+};
+
+/**
+ * 役職別アクセス制御ガード
+ * 指定した役職レベル以上のユーザーのみアクセス可能
+ */
+export function RoleGuard({ children, requiredLevel, fallback }: RoleGuardProps) {
+  const { user } = useAuthStore();
+
+  if (!user) {
+    return null;
+  }
+
+  if (user.position.level < requiredLevel) {
+    if (fallback) {
+      return <>{fallback}</>;
+    }
+    return (
+      <div className="flex min-h-[50vh] flex-col items-center justify-center">
+        <h1 className="text-2xl font-bold text-destructive">アクセス権限がありません</h1>
+        <p className="mt-2 text-muted-foreground">このページを表示するための権限がありません。</p>
+      </div>
+    );
   }
 
   return <>{children}</>;
